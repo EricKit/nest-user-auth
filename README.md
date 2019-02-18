@@ -16,13 +16,15 @@ The goal is to have one truth point for the models. That is the `*.types.graphql
 
 Add a secrets.ts file at the base of the project that contains `export const JWT_SECRET = 'ChangeThisValue';`
 
+Add a user via the graphQL playground. Then update that user to have `admin` in the permissions array on the user's Document. That user can now add admin to others, or remove it.
+
+Users can change their username, password, or email. Changing their username will make their token unusable (it won't authenticate when the user presenting the token is checked against the token's data). So in essence it'll log them out. May or may not be the desired behavior. If using on a front end, I'd make it obvious that you can change your username and it'll log them out. For this reason, \_id should be used for many-to-many relationships.
+
 ### GraphQL Playground Examples:
 
-```
+```graphql
 query loginQuery($loginUser: LoginUserInput!) {
-  login(
-    user: $loginUser
-  ) {
+  login(user: $loginUser) {
     token
     user {
       username
@@ -31,30 +33,34 @@ query loginQuery($loginUser: LoginUserInput!) {
   }
 }
 ```
-```
+
+```json
 {
   "loginUser": {
-    "username": "usersname", 
+    "username": "usersname",
     "password": "passwordOfUser"
   }
 }
 ```
-```
+
+```graphql
 query {
-  getUsers{
+  getUsers {
     username
     email
   }
 }
 ```
-```
-query user{
+
+```graphql
+query user {
   user(email: "email@test.com") {
     username
   }
 }
 ```
-```
+
+```graphql
 mutation updateUser($updateUser: UpdateUserInput!) {
   updateUser(username: "usernametoUpdate", fieldsToUpdate: $updateUser) {
     username
@@ -64,23 +70,43 @@ mutation updateUser($updateUser: UpdateUserInput!) {
   }
 }
 ```
-```
+
+```json
 {
   "updateUser": {
-    "username": "newUserName", 
+    "username": "newUserName",
     "password": "newPassword",
     "email": "newEmail@test.com"
   }
 }
 ```
-```
+
+```graphql
 mutation CreateUser {
-  createUser(createUserInput: {
-    username: "username",
-    email:"user@test.com",
-    password:"userspassword"
-  }) {
+  createUser(
+    createUserInput: {
+      username: "username"
+      email: "user@test.com"
+      password: "userspassword"
+    }
+  ) {
     username
+  }
+}
+```
+
+```graphql
+mutation {
+  addAdminPermission(username: "someUsername") {
+    permissions
+  }
+}
+```
+
+```graphql
+mutation {
+  removeAdminPermission(username: "someUsername") {
+    permissions
   }
 }
 ```
@@ -89,4 +115,4 @@ mutation CreateUser {
 
 Add the token to your headers `{"Authorization": "Bearer eyJhbGc..."}`
 
-Admin must be set manually as a string in permissions for a user, I'll add that soon.
+Admin must be set manually as a string in permissions for the first user (add `admin` to the permissions array). That person can then add admin to other users via a mutation.
