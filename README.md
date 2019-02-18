@@ -20,7 +20,15 @@ Add a user via the graphQL playground. Then update that user to have `admin` in 
 
 Users can change their username, password, or email. Changing their username will make their token unusable (it won't authenticate when the user presenting the token is checked against the token's data). So in essence it'll log them out. May or may not be the desired behavior. If using on a front end, I'd make it obvious that you can change your username and it'll log them out. For this reason, \_id should be used for many-to-many relationships.
 
-### GraphQL Playground Examples:
+### Authentication
+
+Add the token to your headers `{"Authorization": "Bearer eyJhbGc..."}`
+
+Admin must be set manually as a string in permissions for the first user (add `admin` to the permissions array). That person can then add admin to other users via a mutation.
+
+Users can modify or view their own data. Admins can do anything. The guard for users compares the user's email or username with the same field in a query. If any query or mutation in the resolver has doAnythingWithUser(username: string) or doAnythingWithUser(email: string) and that email / username matches the user which is requesting the action, it will be approved. Username and email are unique, and that user has already been verified via JWT.
+
+### GraphQL Playground Examples
 
 ```graphql
 query loginQuery($loginUser: LoginUserInput!) {
@@ -110,9 +118,3 @@ mutation {
   }
 }
 ```
-
-### Authentication
-
-Add the token to your headers `{"Authorization": "Bearer eyJhbGc..."}`
-
-Admin must be set manually as a string in permissions for the first user (add `admin` to the permissions array). That person can then add admin to other users via a mutation.
