@@ -59,7 +59,7 @@ export class AuthService {
 
   async validateUserByJwt(payload: JwtPayload) {
     // This will be used when the user has already logged in and has a JWT
-    const user = await this.usersService.findOneByEmail(payload.email);
+    const user = await this.usersService.findOneByUsername(payload.username);
 
     if (user) {
       return user;
