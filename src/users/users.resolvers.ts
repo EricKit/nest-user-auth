@@ -37,7 +37,7 @@ export class UserResolver {
     }
 
     if (user) return user;
-    throw NotFoundException;
+    throw new NotFoundException();
   }
 
   @Mutation('createUser')
