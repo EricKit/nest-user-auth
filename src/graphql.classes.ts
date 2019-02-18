@@ -26,6 +26,10 @@ export abstract class IMutation {
     abstract createUser(createUserInput?: CreateUserInput): User | Promise<User>;
 
     abstract updateUser(username: string, fieldsToUpdate: UpdateUserInput): User | Promise<User>;
+
+    abstract addAdminPermission(username: string): User | Promise<User>;
+
+    abstract removeAdminPermission(username: string): User | Promise<User>;
 }
 
 export abstract class IQuery {

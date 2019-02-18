@@ -4,6 +4,7 @@ import { UsersService } from '../users/users.service';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { LoginUserInput, User, LoginResult } from '../graphql.classes';
 import { UserDocument } from '../users/schemas/user.schema';
+import { rejects } from 'assert';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,7 @@ export class AuthService {
 
   async validateUserByPassword(
     loginAttempt: LoginUserInput,
-  ): Promise<LoginResult> {
+  ): Promise<LoginResult | undefined> {
     // This will be used for the initial login
     let userToAttempt: UserDocument | null = null;
     if (loginAttempt.email) {
@@ -28,13 +29,17 @@ export class AuthService {
     }
 
     return new Promise<LoginResult>(resolve => {
-      if (!userToAttempt) throw new UnauthorizedException();
+      if (!userToAttempt) {
+        resolve(undefined);
+        return;
+      }
       // Check the supplied password against the hash stored for this email address
       userToAttempt.checkPassword(
         loginAttempt.password,
         (err?: Error, isMatch?: boolean) => {
           if (err) {
-            throw new UnauthorizedException();
+            resolve(undefined);
+            return;
           }
           if (isMatch) {
             // If there is a successful match, generate a JWT for the user
@@ -45,7 +50,7 @@ export class AuthService {
             };
             resolve(result);
           } else {
-            throw new UnauthorizedException();
+            resolve(undefined);
           }
         },
       );

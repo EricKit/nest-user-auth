@@ -54,16 +54,26 @@ export class UserResolver {
     @Args('username') username: string,
     @Args('fieldsToUpdate') fieldsToUpdate: UpdateUserInput,
   ): Promise<User> {
-    const user = await this.userService.findOneByUsername(username);
-
+    const user = await this.userService.update(username, fieldsToUpdate);
     if (!user) throw new NotFoundException();
+    return user;
+  }
 
-    if (fieldsToUpdate.username) user.username = fieldsToUpdate.username;
-    if (fieldsToUpdate.email) user.email = fieldsToUpdate.email;
-    if (fieldsToUpdate.password) user.password = fieldsToUpdate.password;
+  @Mutation('addAdminPermission')
+  @UseGuards(GqlAuthGuard, AdminGuard)
+  async addAdminPermission(@Args('username') username: string): Promise<User> {
+    const user = await this.userService.addPermission('admin', username);
+    if (!user) throw new NotFoundException();
+    return user;
+  }
 
-    // Save will hash the password
-    await user.save();
+  @Mutation('removeAdminPermission')
+  @UseGuards(GqlAuthGuard, AdminGuard)
+  async removeAdminPermission(
+    @Args('username') username: string,
+  ): Promise<User> {
+    const user = await this.userService.removePermission('admin', username);
+    if (!user) throw new NotFoundException();
     return user;
   }
 }

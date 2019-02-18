@@ -8,6 +8,8 @@ type Query {
 type Mutation {
   createUser(createUserInput: CreateUserInput): User
   updateUser(username: String!, fieldsToUpdate: UpdateUserInput!): User
+  addAdminPermission(username: String!): User
+  removeAdminPermission(username: String!): User
 }
 
 type User {
