@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This is a boiler plate project to start with user authentication. I plan on adding more capability. Feel free to throw spears at it or recommend updates.
+This is a boiler plate project to start with user authentication. I plan on adding more capability. Feel free to throw spears at it or recommend updates. Standard disclaimer: In no way has this been vetted by security experts.
 
 ## Technologies
 
