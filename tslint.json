@@ -8,11 +8,18 @@
     "quotemark": [true, "single"],
     "member-access": [false],
     "ordered-imports": [false],
-    "max-line-length": [true, 150],
+    "max-line-length": [true, 120],
     "member-ordering": [false],
     "interface-name": [false],
     "arrow-parens": false,
-    "object-literal-sort-keys": false
+    "object-literal-sort-keys": false,
+    "no-angle-bracket-type-assertion": false,
+    "curly": false,
+    "no-empty": false,
+    "no-console": false
   },
-  "rulesDirectory": []
+  "rulesDirectory": [],
+  "linterOptions": {
+    "exclude": ["node_modules"]
+  }
 }
