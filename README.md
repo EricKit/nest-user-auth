@@ -2,7 +2,7 @@
 
 ## Next task
 
-Let me know what features you'd like to see. Recently added password reset emails.
+Let me know what features you'd like to see. The ability to reset a user's password via email was added.
 
 ## Purpose
 
