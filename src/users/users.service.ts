@@ -14,7 +14,9 @@ import {
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel('User') private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel('User') private readonly userModel: Model<UserDocument>,
+  ) {}
 
   isAdmin(permissions: string[]): boolean {
     return permissions.includes('admin');
@@ -125,7 +127,8 @@ export class UsersService {
     const createdUser = new this.userModel(createUserInput);
     createdUser.lowercaseUsername = createdUser.username.toLowerCase();
     createdUser.lowercaseEmail = createdUser.email.toLowerCase();
-    return await createdUser.save();
+    const user = await createdUser.save();
+    return user;
   }
 
   async findOneByEmail(email: string): Promise<UserDocument | undefined> {

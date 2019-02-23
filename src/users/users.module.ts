@@ -7,10 +7,7 @@ import { UserResolver } from './users.resolvers';
 import { DateScalar } from '../scalars/date.scalar';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
-    PassportModule.register({ defaultStrategy: 'jwt', session: false }),
-  ],
+  imports: [MongooseModule.forFeature([{ name: 'User', schema: UserSchema }])],
   exports: [UsersService],
   controllers: [],
   providers: [UsersService, UserResolver, DateScalar],

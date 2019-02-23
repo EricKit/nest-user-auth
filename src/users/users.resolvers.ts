@@ -9,12 +9,12 @@ import { UserInputError, ValidationError } from 'apollo-server-core';
 
 @Resolver('User')
 export class UserResolver {
-  constructor(private userService: UsersService) {}
+  constructor(private usersService: UsersService) {}
 
   @Query('getUsers')
   @UseGuards(GqlAuthGuard, AdminGuard)
   async getUsers() {
-    return await this.userService.getAllUsers();
+    return await this.usersService.getAllUsers();
   }
 
   @Query('user')
@@ -25,9 +25,9 @@ export class UserResolver {
   ): Promise<User> {
     let user: User | undefined;
     if (username) {
-      user = await this.userService.findOneByUsername(username);
+      user = await this.usersService.findOneByUsername(username);
     } else if (email) {
-      user = await this.userService.findOneByEmail(email);
+      user = await this.usersService.findOneByEmail(email);
     } else {
       // Is this the best exception for a graphQL error?
       throw new ValidationError('A username or email must be included');
@@ -40,7 +40,7 @@ export class UserResolver {
   // A NotFoundException is intentionally not sent so bots can't search for emails
   @Query('forgotPassword')
   async forgotPassword(@Args('email') email: string): Promise<void> {
-    const worked = await this.userService.forgotPassword(email);
+    const worked = await this.usersService.forgotPassword(email);
   }
 
   // What went wrong is intentionally not sent (wrong username or code or user not in reset status)
@@ -50,7 +50,11 @@ export class UserResolver {
     @Args('code') code: string,
     @Args('password') password: string,
   ): Promise<User> {
-    const user = await this.userService.resetPassword(username, code, password);
+    const user = await this.usersService.resetPassword(
+      username,
+      code,
+      password,
+    );
     if (!user) throw new UserInputError('The user does not exist');
     return user;
   }
@@ -59,7 +63,7 @@ export class UserResolver {
   async createUser(
     @Args('createUserInput') createUserInput: CreateUserInput,
   ): Promise<User> {
-    const createdUser = await this.userService.create(createUserInput);
+    const createdUser = await this.usersService.create(createUserInput);
     return createdUser;
   }
 
@@ -69,7 +73,7 @@ export class UserResolver {
     @Args('username') username: string,
     @Args('fieldsToUpdate') fieldsToUpdate: UpdateUserInput,
   ): Promise<User> {
-    const user = await this.userService.update(username, fieldsToUpdate);
+    const user = await this.usersService.update(username, fieldsToUpdate);
     if (!user) throw new UserInputError('The user does not exist');
     return user;
   }
@@ -77,7 +81,7 @@ export class UserResolver {
   @Mutation('addAdminPermission')
   @UseGuards(GqlAuthGuard, AdminGuard)
   async addAdminPermission(@Args('username') username: string): Promise<User> {
-    const user = await this.userService.addPermission('admin', username);
+    const user = await this.usersService.addPermission('admin', username);
     if (!user) throw new UserInputError('The user does not exist');
     return user;
   }
@@ -87,7 +91,7 @@ export class UserResolver {
   async removeAdminPermission(
     @Args('username') username: string,
   ): Promise<User> {
-    const user = await this.userService.removePermission('admin', username);
+    const user = await this.usersService.removePermission('admin', username);
     if (!user) throw new UserInputError('The user does not exist');
     return user;
   }
