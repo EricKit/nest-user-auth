@@ -4,7 +4,6 @@ import { UsersService } from '../users/users.service';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { LoginUserInput, User, LoginResult } from '../graphql.classes';
 import { UserDocument } from '../users/schemas/user.schema';
-import { rejects } from 'assert';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +16,7 @@ export class AuthService {
     loginAttempt: LoginUserInput,
   ): Promise<LoginResult | undefined> {
     // This will be used for the initial login
-    let userToAttempt: UserDocument | null = null;
+    let userToAttempt: UserDocument | undefined;
     if (loginAttempt.email) {
       userToAttempt = await this.usersService.findOneByEmail(
         loginAttempt.email,
@@ -57,15 +56,17 @@ export class AuthService {
     });
   }
 
-  async validateUserByJwt(payload: JwtPayload) {
+  async validateUserByJwt(
+    payload: JwtPayload,
+  ): Promise<UserDocument | undefined> {
     // This will be used when the user has already logged in and has a JWT
     const user = await this.usersService.findOneByUsername(payload.username);
 
     if (user) {
       return user;
-    } else {
-      throw new UnauthorizedException();
     }
+
+    return undefined;
   }
 
   createJwtPayload(user: User) {

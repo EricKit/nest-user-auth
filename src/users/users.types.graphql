@@ -3,6 +3,7 @@ scalar Date
 type Query {
   getUsers: [User!]
   user(username: String, email: String): User
+  forgotPassword(email: String): Boolean
 }
 
 type Mutation {
@@ -10,6 +11,7 @@ type Mutation {
   updateUser(username: String!, fieldsToUpdate: UpdateUserInput!): User
   addAdminPermission(username: String!): User
   removeAdminPermission(username: String!): User
+  resetPassword(username: String!, code: String!, password: String!): User
 }
 
 type User {

@@ -1,9 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from '../auth.service';
 import { PassportStrategy } from '@nestjs/passport';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { JWT_SECRET } from '../../../secrets';
+import { AuthenticationError } from 'apollo-server-core';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -20,7 +21,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const user = await this.authService.validateUserByJwt(payload);
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new AuthenticationError(
+        'Could not log-in with the provided credentials',
+      );
     }
 
     return user;

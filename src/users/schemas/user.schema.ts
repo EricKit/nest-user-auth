@@ -5,11 +5,22 @@ import { User } from '../../graphql.classes';
 export interface UserDocument extends User, Document {
   _id: string;
   password: string;
+  lowercaseUsername: string;
+  lowercaseEmail: string;
+  passwordReset?: {
+    token: string;
+    expiration: Date;
+  };
   checkPassword(
     password: string,
     callback: (error?: Error, same?: boolean) => any,
   ): void;
 }
+
+export const PasswordResetSchema: Schema = new Schema({
+  token: { type: String, required: true },
+  expiration: { type: Date, required: true },
+});
 
 export const UserSchema: Schema = new Schema(
   {
@@ -31,6 +42,17 @@ export const UserSchema: Schema = new Schema(
       type: [String],
       required: true,
     },
+    lowercaseUsername: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    lowercaseEmail: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    passwordReset: PasswordResetSchema,
   },
   {
     timestamps: true,
