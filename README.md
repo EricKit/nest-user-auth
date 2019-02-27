@@ -24,7 +24,7 @@ The databse stores a unique lowercase value for both username and email. This is
 
 Ensure a MongoDB server is running locally.
 
-To use email, register with any dedicated SMTP server. Gmail doesn't let you change your from address and has other limiations. Mailgun is recommended. With mailgun use their SMTP service, not the API.
+To use email, register with any dedicated SMTP server. Gmail doesn't let you change your from address and has other limitations. Mailgun is recommended. With mailgun use their SMTP service, not the API.
 
 Add a `dev.env` file at the base of the project that contains:
 
