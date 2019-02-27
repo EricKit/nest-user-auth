@@ -10,7 +10,7 @@ This is a boiler plate project to start with user authentication. Adding other G
 
 ## Technologies
 
-The project is built using MongoDB with Mongoose for the database. The project is built around NestJS and @nestjs/graphql. Passport is used for authentication and the strategy is Passport-JWT. Nodemailer is used for email password reset.
+The project is built using MongoDB with Mongoose for the database. The project is built around NestJS, GraphQL with Apollo Server, and `@nestjs/graphql`. Passport is used for authentication and the strategy is Passport-JWT. Nodemailer is used for email password reset.
 
 ## Model Management
 
