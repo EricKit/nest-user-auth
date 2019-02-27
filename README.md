@@ -2,7 +2,7 @@
 
 ## Next task
 
-Let me know what features you'd like to see. The ability to reset a user's password via email was added.
+Add more tests and email validation
 
 ## Purpose
 
@@ -26,17 +26,15 @@ Ensure a MongoDB server is running locally.
 
 To use email, register with any dedicated SMTP server. Gmail doesn't let you change your from address and has other limiations. Mailgun is recommended. With mailgun use their SMTP service, not the API.
 
-Add a secrets.ts file at the base of the project that contains.
+Add a dev.env file at the base of the project that contains:
 
-```typescript
-// JWT Auth Secret
-export const JWT_SECRET = 'someSecret';
-
-// Email secrets
-export const EMAIL_SERVICE = 'Mailgun';
-export const EMAIL_USERNAME = 'mailgun username';
-export const EMAIL_PASSWORD = 'mailgun password for SMTP username';
-export const EMAIL_FROM = 'from@somedomain.com';
+```env
+MONGO_URI=mongodb://localhost:27017/user-auth
+JWT_SECRET=someSecret
+EMAIL_SERVICE=Mailgun
+EMAIL_USERNAME=email@mailgun.com
+EMAIL_PASSWORD=emailSMTPpassword
+EMAIL_FROM=from@somedomain.com
 ```
 
 Start the server
@@ -54,6 +52,12 @@ Users can change their username, password, or email via a mutation. Changing the
 
 Because you can change both unique properties username and email, \_id should be used for many-to-many relationships.
 
+### Environments
+
+Add a `test.env` file which contains a different MONGO_URI that `dev.env`. See the testing section for details.
+
+Add any other environments for production and test. The environment variable `NODE_ENV` is used to determine the correct environment to work in. The program defaults to `dev`. For example, if you wanted to use your `someEnv.env` file in production then set your `NODE_ENV` environment variable to `someEnv`. This can be done through package.json scripts, local environment variables, or your launch.json configuration in VS Code.
+
 ### Authentication
 
 Add the token to your headers `{"Authorization": "Bearer eyj2aGc..."}`
@@ -61,6 +65,10 @@ Add the token to your headers `{"Authorization": "Bearer eyj2aGc..."}`
 Admin must be set manually as a string in permissions for the first user (add `admin` to the permissions array). That person can then add admin to other users via a mutation. Permissions is an array of strings so that you can add other permissions and create guards such as `can-modify-users-with-prime-number-id`.
 
 Users can modify or view their own data. Admins can do anything in the current guards. The UserEmailGuard compares the user's email or username with the same field in a query. If any query or mutation in the resolver has doAnythingWithUser(username: string) or doAnythingWithUser(email: string) and that email / username matches the user which is requesting the action, it will be approved. Username and email are unique, and the user has already been verified via JWT.
+
+### Testing
+
+Some end to end tests have been written. To do testing, ensure that your environment is different than your `dev` environment you are working in. When the end to end test runs, it will delete all users in the database specified in the environment file on start. Currently running `npm run test:e2e` will set `NODE_ENV` to `test` based on `package.json` scripts. This will default to the `test.env` file. Set this up to have a different database than your `dev.env` file such as `MONGO_URI=mongodb://localhost:27017/user-auth-test`
 
 ### GraphQL Playground Examples
 

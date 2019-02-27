@@ -6,6 +6,7 @@ import { CreateUserInput, User, UpdateUserInput } from '../graphql.classes';
 import { UsernameEmailGuard } from '../auth/guards/username-email.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { UserInputError, ValidationError } from 'apollo-server-core';
+import { UserDocument } from './schemas/user.schema';
 
 @Resolver('User')
 export class UserResolver {
@@ -63,7 +64,12 @@ export class UserResolver {
   async createUser(
     @Args('createUserInput') createUserInput: CreateUserInput,
   ): Promise<User> {
-    const createdUser = await this.usersService.create(createUserInput);
+    let createdUser: User | undefined;
+    try {
+      createdUser = await this.usersService.create(createUserInput);
+    } catch (error) {
+      throw new UserInputError(error.message);
+    }
     return createdUser;
   }
 

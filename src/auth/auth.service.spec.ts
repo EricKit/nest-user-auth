@@ -4,7 +4,8 @@ import { getModelToken } from '@nestjs/mongoose';
 import { UserModel } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
 import { JwtModule } from '@nestjs/jwt';
-import { JWT_SECRET } from '../../secrets';
+import { ConfigService } from '../config/config.service';
+import { ConfigModule } from '../config/config.module';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -12,11 +13,12 @@ describe('AuthService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        JwtModule.register({
-          secretOrPrivateKey: JWT_SECRET,
-          signOptions: {
-            expiresIn: 3600,
-          },
+        JwtModule.registerAsync({
+          imports: [ConfigModule],
+          useFactory: async (configService: ConfigService) => ({
+            secretOrPrivateKey: configService.get('JWT_SECRET'),
+          }),
+          inject: [ConfigService],
         }),
       ],
       providers: [

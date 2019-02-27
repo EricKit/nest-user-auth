@@ -1,21 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, connection, mongo } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { UserDocument } from './schemas/user.schema';
+import { UserDocument, UserModel } from './schemas/user.schema';
 import { CreateUserInput, UpdateUserInput } from '../graphql.classes';
 import { randomBytes } from 'crypto';
 import { createTransport, SendMailOptions } from 'nodemailer';
-import {
-  EMAIL_SERVICE,
-  EMAIL_USERNAME,
-  EMAIL_PASSWORD,
-  EMAIL_FROM,
-} from '../../secrets';
+import { ConfigService } from '../config/config.service';
+import { MongoError } from 'mongodb';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel('User') private readonly userModel: Model<UserDocument>,
+    private configService: ConfigService,
   ) {}
 
   isAdmin(permissions: string[]): boolean {
@@ -73,15 +70,15 @@ export class UsersService {
     const expiration = new Date(Date().valueOf() + 24 * 60 * 60 * 1000);
 
     const transporter = createTransport({
-      service: EMAIL_SERVICE,
+      service: this.configService.get('EMAIL_SERVICE'),
       auth: {
-        user: EMAIL_USERNAME,
-        pass: EMAIL_PASSWORD,
+        user: this.configService.get('EMAIL_USERNAME'),
+        pass: this.configService.get('EMAIL_PASSWORD'),
       },
     });
 
     const mailOptions: SendMailOptions = {
-      from: EMAIL_FROM,
+      from: this.configService.get('EMAIL_FROM'),
       to: email,
       subject: `Reset Password`,
       text: `${user.username},
@@ -123,11 +120,36 @@ export class UsersService {
     return undefined;
   }
 
-  async create(createUserInput: CreateUserInput) {
+  async create(createUserInput: CreateUserInput): Promise<UserDocument> {
     const createdUser = new this.userModel(createUserInput);
     createdUser.lowercaseUsername = createdUser.username.toLowerCase();
     createdUser.lowercaseEmail = createdUser.email.toLowerCase();
-    const user = await createdUser.save();
+    let user: UserDocument | undefined;
+    try {
+      user = await createdUser.save();
+    } catch (error) {
+      const mongoError = <MongoError> error;
+      if (mongoError.code === 11000) {
+        if (
+          mongoError.message
+            .toLowerCase()
+            .includes(createUserInput.email.toLowerCase())
+        ) {
+          throw new Error(
+            `e-mail ${createUserInput.email} is already registered`,
+          );
+        } else if (
+          mongoError.message
+            .toLowerCase()
+            .includes(createUserInput.username.toLowerCase())
+        ) {
+          throw new Error(
+            `Username ${createUserInput.username} is already registered`,
+          );
+        }
+      }
+      throw new Error('Re-check input fields');
+    }
     return user;
   }
 
@@ -150,5 +172,9 @@ export class UsersService {
   async getAllUsers(): Promise<UserDocument[]> {
     const users = await this.userModel.find().exec();
     return users;
+  }
+
+  async deleteAllUsers(): Promise<void> {
+    await this.userModel.deleteMany({});
   }
 }

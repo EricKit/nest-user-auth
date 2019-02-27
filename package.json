@@ -17,7 +17,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "NODE_ENV=test jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/common": "^5.7.3",
@@ -28,6 +28,7 @@
     "@nestjs/passport": "^5.1.0",
     "apollo-server-express": "^2.4.6",
     "bcrypt": "^3.0.4",
+    "dotenv": "^6.2.0",
     "graphql": "^14.1.1",
     "graphql-tools": "^4.0.4",
     "mongoose": "^5.4.15",
@@ -42,9 +43,11 @@
   "devDependencies": {
     "@nestjs/testing": "^5.7.3",
     "@types/bcrypt": "^3.0.0",
+    "@types/dotenv": "^6.1.0",
     "@types/express": "^4.16.0",
     "@types/graphql": "^14.0.7",
     "@types/jest": "^23.3.14",
+    "@types/mongodb": "^3.1.19",
     "@types/mongoose": "^5.3.19",
     "@types/node": "^10.12.27",
     "@types/nodemailer": "^4.6.6",
@@ -58,7 +61,7 @@
     "ts-loader": "^4.4.2",
     "ts-node": "^7.0.1",
     "tsconfig-paths": "^3.8.0",
-    "tslint": "^5.12.1"
+    "tslint": "^5.13.0"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -72,6 +75,9 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "testEnvironmentOptions": {
+      "NODE_ENV": "test"
+    }
   }
 }

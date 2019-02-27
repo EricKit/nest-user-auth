@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { UserModel } from './schemas/user.schema';
+import { ConfigService } from '../config/config.service';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -13,6 +14,11 @@ describe('UsersService', () => {
         {
           provide: getModelToken('User'),
           useValue: UserModel,
+        },
+        ConfigService,
+        {
+          provide: ConfigService,
+          useValue: new ConfigService(`${process.env.NODE_ENV}.env`),
         },
       ],
     }).compile();
