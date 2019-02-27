@@ -26,7 +26,7 @@ Ensure a MongoDB server is running locally.
 
 To use email, register with any dedicated SMTP server. Gmail doesn't let you change your from address and has other limiations. Mailgun is recommended. With mailgun use their SMTP service, not the API.
 
-Add a dev.env file at the base of the project that contains:
+Add a `dev.env` file at the base of the project that contains:
 
 ```env
 MONGO_URI=mongodb://localhost:27017/user-auth
@@ -46,7 +46,7 @@ Add a user via the graphql playground or your frontend.
 
 `http://localhost:3000/graphql`
 
-Then update that user's Document to have the string `admin` in the permissions array. MongoDB Compass is a great tool to do that and view your schema. That user can now add admin or remove admin permission to other users.
+Update that user's Document to have the string `admin` in the permissions array. MongoDB Compass is a great tool to modify fields. That user can now add the admin permission or remove the admin permission to or from other users.
 
 Users can change their username, password, or email via a mutation. Changing their username will make their token unusable (it won't authenticate when the user presenting the token's username is checked against the token's username). This may or may not be the desired behavior. If using on a front end, make it obvious that you can change your username and it'll log the user out (front end must get a new token via logging in).
 
