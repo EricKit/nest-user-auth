@@ -2,7 +2,7 @@
 
 ## Next task
 
-Add more tests and email validation
+Add email verification when a user emails
 
 ## Purpose
 
@@ -10,7 +10,7 @@ This is a boiler plate project to start with user authentication. Adding other G
 
 ## Technologies
 
-The project is built using MongoDB with Mongoose for the database. The project is built around NestJS, GraphQL with Apollo Server, and `@nestjs/graphql`. Passport is used for authentication and the strategy is Passport-JWT. Nodemailer is used for email password reset.
+This project is built using MongoDB with Mongoose for the database. NestJS is used as teh framework. GraphQL, Apollo Server, and `@nestjs/graphql` are used for the API. Passport is used for authentication and the strategy is Passport-JWT. Nodemailer is used for email password reset.
 
 ## Model Management
 
@@ -20,13 +20,15 @@ Username is the primary field to identify a user in a request. Initially usernam
 
 The databse stores a unique lowercase value for both username and email. This is to lookup the user's username or email without case being a factor. Lowercase username and email are also unique, so user@Email.com and user@email.com can't both resgister. The normal cased version is used for everything but lookup. Only the database is aware lowercase values exists. GraphQL is not.
 
+The database handles creating the lowercase value with hooks for `save` and `findOneAndUpdate`.
+
 ## Usage
 
 Ensure a MongoDB server is running locally.
 
 To use email, register with any dedicated SMTP server. Gmail doesn't let you change your from address and has other limitations. Mailgun is recommended. With mailgun use their SMTP service, not the API.
 
-Add a `dev.env` file at the base of the project that contains:
+Add a `dev.env` to the root of your project.
 
 ```env
 MONGO_URI=mongodb://localhost:27017/user-auth
@@ -48,6 +50,8 @@ Add a user via the graphql playground or your frontend.
 
 Update that user's Document to have the string `admin` in the permissions array. MongoDB Compass is a great tool to modify fields. That user can now add the admin permission or remove the admin permission to or from other users.
 
+The UsersService `update` method will update any fields which are valid and not duplicates, even if others are invalid or duplicates.
+
 Users can change their username, password, or email via a mutation. Changing their username will make their token unusable (it won't authenticate when the user presenting the token's username is checked against the token's username). This may or may not be the desired behavior. If using on a front end, make it obvious that you can change your username and it'll log the user out (front end must get a new token via logging in).
 
 Because you can change both unique properties username and email, \_id should be used for many-to-many relationships.
@@ -56,7 +60,7 @@ Because you can change both unique properties username and email, \_id should be
 
 Add a `test.env` file which contains a different MONGO_URI that `dev.env`. See the testing section for details.
 
-Add any other environments for production and test. The environment variable `NODE_ENV` is used to determine the correct environment to work in. The program defaults to `dev`. For example, if you wanted to use your `someEnv.env` file in production then set your `NODE_ENV` environment variable to `someEnv`. This can be done through package.json scripts, local environment variables, or your launch.json configuration in VS Code.
+Add any other environments for production and test. The environment variable `NODE_ENV` is used to determine the correct environment to work in. The program defaults to `dev`. For example, if you wanted to use your `someEnv.env` file in production then set your `NODE_ENV` environment variable to `someEnv`. This can be done through package.json scripts, local environment variables, or your launch.json configuration in VS Code. If you do nothing, it will look for `dev.env`. Do not commit this file.
 
 ### Authentication
 
@@ -68,7 +72,19 @@ Users can modify or view their own data. Admins can do anything in the current g
 
 ### Testing
 
-Some end to end tests have been written. To do testing, ensure that your environment is different than your `dev` environment you are working in. When the end to end test runs, it will delete all users in the database specified in the environment file on start. Currently running `npm run test:e2e` will set `NODE_ENV` to `test` based on `package.json` scripts. This will default to the `test.env` file. Set this up to have a different database than your `dev.env` file such as `MONGO_URI=mongodb://localhost:27017/user-auth-test`
+Some end to end tests have been written. To do testing, ensure that your environment is different than your `dev` environment you are working in. When the end to end test runs, it will delete all users in the database specified in the environment file on start. Currently running `npm run test:e2e` will set `NODE_ENV` to `test` based on `package.json` scripts. This will default to the `test.env` file. Set this up to have a different database than your `dev.env` file. To test Nodemailer include the variable `TEST_EMAIL_TO` which is the email that will receive the password reset email.
+
+#### Example `test.env`
+
+```env
+MONGO_URI=mongodb://localhost:27017/user-auth-test
+JWT_SECRET=someSecret
+EMAIL_SERVICE=Mailgun
+EMAIL_USERNAME=email@mailgun.com
+EMAIL_PASSWORD=emailSMTPpassword
+EMAIL_FROM=from@somedomain.com
+TEST_EMAIL_TO=realEmailAddress@somedomain.com
+```
 
 ### GraphQL Playground Examples
 
@@ -95,7 +111,7 @@ query loginQuery($loginUser: LoginUserInput!) {
 
 ```graphql
 query {
-  getUsers {
+  users {
     username
     email
   }

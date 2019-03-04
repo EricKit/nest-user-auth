@@ -12,9 +12,9 @@ import { UserDocument } from './schemas/user.schema';
 export class UserResolver {
   constructor(private usersService: UsersService) {}
 
-  @Query('getUsers')
+  @Query('users')
   @UseGuards(GqlAuthGuard, AdminGuard)
-  async getUsers() {
+  async users() {
     return await this.usersService.getAllUsers();
   }
 
@@ -56,7 +56,7 @@ export class UserResolver {
       code,
       password,
     );
-    if (!user) throw new UserInputError('The user does not exist');
+    if (!user) throw new UserInputError('The password was not reset');
     return user;
   }
 
@@ -79,7 +79,12 @@ export class UserResolver {
     @Args('username') username: string,
     @Args('fieldsToUpdate') fieldsToUpdate: UpdateUserInput,
   ): Promise<User> {
-    const user = await this.usersService.update(username, fieldsToUpdate);
+    let user: UserDocument | undefined;
+    try {
+      user = await this.usersService.update(username, fieldsToUpdate);
+    } catch (error) {
+      throw new ValidationError(error.message);
+    }
     if (!user) throw new UserInputError('The user does not exist');
     return user;
   }

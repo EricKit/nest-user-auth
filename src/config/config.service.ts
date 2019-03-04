@@ -19,4 +19,8 @@ export class ConfigService {
   get(key: string): string {
     return this.envConfig[key];
   }
+
+  set(key: string, value: string) {
+    this.envConfig[key] = value;
+  }
 }

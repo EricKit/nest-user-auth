@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model, connection, mongo } from 'mongoose';
+import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserDocument, UserModel } from './schemas/user.schema';
 import { CreateUserInput, UpdateUserInput } from '../graphql.classes';
@@ -44,20 +44,43 @@ export class UsersService {
     return user;
   }
 
+  // If any fields are valid, they should be updated
   async update(
     username: string,
     fieldsToUpdate: UpdateUserInput,
   ): Promise<UserDocument | undefined> {
-    const user = await this.findOneByUsername(username);
+    if (fieldsToUpdate.username) {
+      const duplicateUser = await this.findOneByUsername(
+        fieldsToUpdate.username,
+      );
+      if (duplicateUser) fieldsToUpdate.username = undefined;
+    }
+
+    if (fieldsToUpdate.email) {
+      const duplicateUser = await this.findOneByEmail(fieldsToUpdate.email);
+      const emailValid = UserModel.validateEmail(fieldsToUpdate.email);
+      if (duplicateUser || !emailValid) fieldsToUpdate.email = undefined;
+    }
+
+    const fields = {};
+
+    // Remove undefined keys for update
+    for (const key in fieldsToUpdate) {
+      if (typeof fieldsToUpdate[key] !== 'undefined') {
+        fields[key] = fieldsToUpdate[key];
+      }
+    }
+
+    let user: UserDocument | null = null;
+
+    user = await this.userModel.findOneAndUpdate(
+      { lowercaseUsername: username.toLowerCase() },
+      fields,
+      { new: true, runValidators: true },
+    );
 
     if (!user) return undefined;
 
-    if (fieldsToUpdate.username) user.username = fieldsToUpdate.username;
-    if (fieldsToUpdate.email) user.email = fieldsToUpdate.email;
-    if (fieldsToUpdate.password) user.password = fieldsToUpdate.password;
-
-    // Save will hash the password
-    await user.save();
     return user;
   }
 
@@ -122,33 +145,12 @@ export class UsersService {
 
   async create(createUserInput: CreateUserInput): Promise<UserDocument> {
     const createdUser = new this.userModel(createUserInput);
-    createdUser.lowercaseUsername = createdUser.username.toLowerCase();
-    createdUser.lowercaseEmail = createdUser.email.toLowerCase();
+
     let user: UserDocument | undefined;
     try {
       user = await createdUser.save();
     } catch (error) {
-      const mongoError = <MongoError> error;
-      if (mongoError.code === 11000) {
-        if (
-          mongoError.message
-            .toLowerCase()
-            .includes(createUserInput.email.toLowerCase())
-        ) {
-          throw new Error(
-            `e-mail ${createUserInput.email} is already registered`,
-          );
-        } else if (
-          mongoError.message
-            .toLowerCase()
-            .includes(createUserInput.username.toLowerCase())
-        ) {
-          throw new Error(
-            `Username ${createUserInput.username} is already registered`,
-          );
-        }
-      }
-      throw new Error('Re-check input fields');
+      throw this.evaluateMongoError(error, createUserInput);
     }
     return user;
   }
@@ -176,5 +178,31 @@ export class UsersService {
 
   async deleteAllUsers(): Promise<void> {
     await this.userModel.deleteMany({});
+  }
+
+  private evaluateMongoError(
+    error: MongoError,
+    createUserInput: CreateUserInput,
+  ): Error {
+    if (error.code === 11000) {
+      if (
+        error.message
+          .toLowerCase()
+          .includes(createUserInput.email.toLowerCase())
+      ) {
+        throw new Error(
+          `e-mail ${createUserInput.email} is already registered`,
+        );
+      } else if (
+        error.message
+          .toLowerCase()
+          .includes(createUserInput.username.toLowerCase())
+      ) {
+        throw new Error(
+          `Username ${createUserInput.username} is already registered`,
+        );
+      }
+    }
+    throw new Error(error.message);
   }
 }
