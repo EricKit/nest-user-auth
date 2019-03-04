@@ -56,6 +56,8 @@ Users can change their username, password, or email via a mutation. Changing the
 
 Because you can change both unique properties username and email, \_id should be used for many-to-many relationships.
 
+See `test/users.e2e-spec.ts` for expected results to mutations and queries.
+
 ### Environments
 
 Add a `test.env` file which contains a different MONGO_URI that `dev.env`. See the testing section for details.
@@ -72,7 +74,7 @@ Users can modify or view their own data. Admins can do anything in the current g
 
 ### Testing
 
-Some end to end tests have been written. To do testing, ensure that your environment is different than your `dev` environment you are working in. When the end to end test runs, it will delete all users in the database specified in the environment file on start. Currently running `npm run test:e2e` will set `NODE_ENV` to `test` based on `package.json` scripts. This will default to the `test.env` file. Set this up to have a different database than your `dev.env` file. To test Nodemailer include the variable `TEST_EMAIL_TO` which is the email that will receive the password reset email.
+Some end to end tests have been written. To do testing, ensure that your environment is different than your `dev` environment you are working in. When the end to end test runs, it will delete all users in the database specified in the environment file on start. Currently running `npm run test:e2e` will set `NODE_ENV` to `test` based on `package.json` scripts. This will default to the `test.env` file. Create `test.env` to have a different database than your `dev.env` file. To test Nodemailer include the variable `TEST_EMAIL_TO` which is the email that will receive the password reset email.
 
 #### Example `test.env`
 
