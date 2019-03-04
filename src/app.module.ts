@@ -15,6 +15,7 @@ import { ConfigService } from './config/config.service';
         uri: configService.get('MONGO_URI'),
         useNewUrlParser: true,
         useCreateIndex: true,
+        useFindAndModify: false,
       }),
       inject: [ConfigService],
     }),

@@ -11,7 +11,8 @@
     //"baseUrl": ".",
     "strict": true,
     "strictPropertyInitialization": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "suppressImplicitAnyIndexErrors": true
   },
   "exclude": ["node_modules", "dist"]
 }

@@ -16,7 +16,8 @@
     "no-angle-bracket-type-assertion": false,
     "curly": false,
     "no-empty": false,
-    "no-console": false
+    "no-console": false,
+    "only-arrow-functions": false
   },
   "rulesDirectory": [],
   "linterOptions": {
