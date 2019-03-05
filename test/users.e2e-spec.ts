@@ -885,19 +885,162 @@ describe('Users (e2e)', () => {
   });
 
   describe('admin permissions', () => {
-    it('adds the permission', () => {});
+    it('adds and removes the permission', async () => {
+      await usersService.create({
+        username: 'userToBeAdmin',
+        email: 'userToBeAdmin@email.com',
+        password: 'password',
+      });
 
-    it('removes the permission', () => {});
+      let data = {
+        query: `mutation {addAdminPermission(username: "userToBeAdmin") {permissions}}`,
+      };
 
-    it('keeps the permission if add is run on an admin', () => {});
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${adminLogin.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(
+            response.body.data.addAdminPermission.permissions,
+          ).toContainEqual(`admin`);
+        });
 
-    it('maintains no admin if remove is run on a normal user', () => {});
+      // Make sure admin isn't added twice
+      data = {
+        query: `mutation {addAdminPermission(username: "userToBeAdmin") {permissions}}`,
+      };
 
-    it('fails with no token', () => {});
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${adminLogin.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(
+            response.body.data.addAdminPermission.permissions,
+          ).toContainEqual(`admin`);
+          expect(
+            response.body.data.addAdminPermission.permissions,
+          ).toHaveLength(1);
+        });
 
-    it('fails with invalid token', () => {});
+      // Can remove admin
+      data = {
+        query: `mutation {removeAdminPermission(username: "userToBeAdmin") {permissions}}`,
+      };
 
-    it('fails with normal user token', () => {});
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${adminLogin.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(
+            response.body.data.removeAdminPermission.permissions,
+          ).not.toContainEqual(`admin`);
+          expect(
+            response.body.data.removeAdminPermission.permissions,
+          ).toHaveLength(0);
+        });
+
+      // Make sure there are no issues when removing an adming where it doesn't exist
+      data = {
+        query: `mutation {removeAdminPermission(username: "userToBeAdmin") {permissions}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${adminLogin.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(
+            response.body.data.removeAdminPermission.permissions,
+          ).not.toContainEqual(`admin`);
+          expect(
+            response.body.data.removeAdminPermission.permissions,
+          ).toHaveLength(0);
+        });
+    });
+
+    it('fails with bad credentials', async () => {
+      await usersService.create({
+        username: 'userToBeAdmin2',
+        email: 'userToBeAdmin2@email.com',
+        password: 'password',
+      });
+
+      const result = await authService.validateUserByPassword({
+        username: 'userToBeAdmin2',
+        password: 'password',
+      });
+      const token = result!.token;
+
+      // Own user's token
+      let data = {
+        query: `mutation {addAdminPermission(username: "userToBeAdmin2") {permissions}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+
+      // Another user's token (non-admin)
+      data = {
+        query: `mutation {addAdminPermission(username: "userToBeAdmin2") {permissions}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${user1Login.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+
+      // No token
+      data = {
+        query: `mutation {addAdminPermission(username: "userToBeAdmin2") {permissions}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+
+      // Mispelled token
+      data = {
+        query: `mutation {addAdminPermission(username: "userToBeAdmin2") {permissions}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${user1Login.token}a`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
   });
 
   afterAll(() => {

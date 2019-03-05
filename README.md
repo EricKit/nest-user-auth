@@ -2,7 +2,7 @@
 
 ## Next tasks
 
-Add email verification when a user registers. Add token refresh. Add permission tests.
+Add email verification when a user registers. Add token refresh.
 
 ## Purpose
 
