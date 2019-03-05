@@ -16,9 +16,9 @@ This project is built using MongoDB with Mongoose for the database. NestJS is us
 
 The goal is to have one truth point for the models. That is the `*.types.graphql` files. They contain the GraphQL schema. Then `@nestjs/graphql` creates the `graphql.classes.ts` file. These classes are used as the base class for the Mongoose Schema and in place of DTOs. Of note, I'd like to use the IMutation and IQuery methods in the resolvers, I'm just not sure how that'd work.
 
-Username is the primary field to identify a user in a request. Initially username or email were excepted, but for simplicity the schema moved to only username. Both are in the JWT data. Email could be used too. Both are unique.
+Username is the primary field to identify a user in a request. Initially username or email were accepted, but for simplicity the schema moved to only username. Both are in the JWT data. Email could be used too. Both are unique.
 
-The databse stores a unique lowercase value for both username and email. This is to lookup the user's username or email without case being a factor. Lowercase username and email are also unique, so user@Email.com and user@email.com can't both resgister. The normal cased version is used for everything but lookup. Only the database is aware lowercase values exists. GraphQL is not.
+The database stores a unique lowercase value for both username and email. This is to lookup the user's username or email without case being a factor. Lowercase username and email are also unique, so user@Email.com and user@email.com can't both resgister. The normal cased version is used for everything but lookup. Only the database is aware lowercase values exists. GraphQL is not.
 
 The database handles creating the lowercase value with hooks for `save` and `findOneAndUpdate`.
 

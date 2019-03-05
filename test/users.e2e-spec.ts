@@ -790,6 +790,61 @@ describe('Users (e2e)', () => {
           );
         });
     });
+
+    it('fails to update with no token', async () => {
+      const data = {
+        query: `mutation {
+          updateUser(username: "user1",
+            fieldsToUpdate: {email: "newEmail11@email.com"})
+            {username, email}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+
+    it('fails to update with invalid token', async () => {
+      const data = {
+        query: `mutation {
+          updateUser(username: "user1",
+            fieldsToUpdate: {email: "newEmail11@email.com"})
+            {username, email}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${user1Login.token}a`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+  });
+
+  describe('admin permissions', () => {
+    it('adds the permission', () => {});
+
+    it('removes the permission', () => {});
+
+    it('keeps the permission if add is run on an admin', () => {});
+
+    it('maintains no admin if remove is run on a normal user', () => {});
+
+    it('fails with no token', () => {});
+
+    it('fails with invalid token', () => {});
+
+    it('fails with normal user token', () => {});
   });
 
   afterAll(() => {
