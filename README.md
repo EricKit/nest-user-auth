@@ -1,8 +1,8 @@
 # nest-user-auth
 
-## Next task
+## Next tasks
 
-Add email verification when a user emails
+Add email verification when a user registers. Add token refresh. Add permission tests.
 
 ## Purpose
 
@@ -18,7 +18,7 @@ The goal is to have one truth point for the models. That is the `*.types.graphql
 
 Username is the primary field to identify a user in a request. Initially username or email were accepted, but for simplicity the schema moved to only username. Both are in the JWT data. Email could be used too. Both are unique.
 
-The database stores a unique lowercase value for both username and email. This is to lookup the user's username or email without case being a factor. Lowercase username and email are also unique, so user@Email.com and user@email.com can't both resgister. The normal cased version is used for everything but lookup. Only the database is aware lowercase values exists. GraphQL is not.
+The database stores a unique lowercase value for both username and email. This is to lookup the user's username or email without case being a factor. Lowercase username and email are also unique, so user@Email.com and user@email.com can't both register. The normal cased version is used for everything but lookup. GraphQL Schemas are not aware lowercase values exist intentionally.
 
 The database handles creating the lowercase value with hooks for `save` and `findOneAndUpdate`.
 
@@ -26,7 +26,7 @@ The database handles creating the lowercase value with hooks for `save` and `fin
 
 Ensure a MongoDB server is running locally.
 
-To use email, register with any dedicated SMTP server. Gmail doesn't let you change your from address and has other limitations. Mailgun is recommended. With mailgun use their SMTP service, not the API.
+To use email, register with any dedicated SMTP server. Gmail doesn't let you change your from address and has other limitations. Mailgun is recommended and works out of the box after you register. With mailgun use their SMTP service, not the API.
 
 Add a `dev.env` to the root of your project.
 

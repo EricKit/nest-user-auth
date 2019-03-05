@@ -161,6 +161,22 @@ describe('Users (e2e)', () => {
         });
     });
 
+    it('works for admin', () => {
+      const data = {
+        query: `{user(username:"uSer1"){username}}`,
+      };
+      return request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${adminLogin.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.data.user).toMatchObject({
+            username: 'user1',
+          });
+        });
+    });
+
     it('works with email', () => {
       const data = {
         query: `{user(email:"uSer1@email.com"){username}}`,
@@ -589,6 +605,43 @@ describe('Users (e2e)', () => {
 
       const login = await authService.validateUserByPassword({
         username: 'newUsername1',
+        password: 'newPassword',
+      });
+      expect(login).toBeTruthy();
+    });
+
+    it('works with for admin', async () => {
+      await usersService.create({
+        username: 'userToUpdateByAdmin',
+        email: 'userToUpdatebyAdmin@email.com',
+        password: 'password',
+      });
+
+      const data = {
+        query: `mutation {
+          updateUser(
+            username: "userToUpdateByAdmin",
+            fieldsToUpdate: {
+            username: "newUsernameByAdmin",
+            email: "newUserByAdmin@email.com",
+            password: "newPassword"
+          }) {username, email}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${adminLogin.token!}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.data.updateUser).toMatchObject({
+            username: 'newUsernameByAdmin',
+            email: 'newUserByAdmin@email.com',
+          });
+        });
+
+      const login = await authService.validateUserByPassword({
+        username: 'newUsernameByAdmin',
         password: 'newPassword',
       });
       expect(login).toBeTruthy();
