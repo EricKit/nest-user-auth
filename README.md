@@ -88,6 +88,19 @@ EMAIL_FROM=from@somedomain.com
 TEST_EMAIL_TO=realEmailAddress@somedomain.com
 ```
 
+### nodemon
+
+To use nodemon you'll need to make a small change. In `src/app.module.ts` comment out the following
+
+```typescript
+      definitions: {
+        path: join(process.cwd(), 'src/graphql.classes.ts'),
+        outputAs: 'class',
+      },
+```
+
+Under Model Mangement, it describes how this app builds the classes from your GraphQL schema. This creates a new file, which causes nodemon to restart. When it restarts, it rebuilds the file, and continues to restart. If the schema is updated, uncomment these lines, let it run, then recomment them.
+
 ### GraphQL Playground Examples
 
 ```graphql
