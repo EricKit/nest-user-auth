@@ -12,7 +12,7 @@ import { ConfigService } from './config/config.service';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get('MONGO_URI'),
+        uri: configService.mongoUri,
         useNewUrlParser: true,
         useCreateIndex: true,
         useFindAndModify: false,

@@ -87,21 +87,22 @@ export class UsersService {
   async forgotPassword(email: string): Promise<boolean> {
     const user = await this.findOneByEmail(email);
     if (!user) return false;
+    if (!user.enabled) return false;
     const token = randomBytes(32).toString('hex');
 
     // One day
     const expiration = new Date(Date().valueOf() + 24 * 60 * 60 * 1000);
 
     const transporter = createTransport({
-      service: this.configService.get('EMAIL_SERVICE'),
+      service: this.configService.emailService,
       auth: {
-        user: this.configService.get('EMAIL_USERNAME'),
-        pass: this.configService.get('EMAIL_PASSWORD'),
+        user: this.configService.emailUsername,
+        pass: this.configService.emailPassword,
       },
     });
 
     const mailOptions: SendMailOptions = {
-      from: this.configService.get('EMAIL_FROM'),
+      from: this.configService.emailFrom,
       to: email,
       subject: `Reset Password`,
       text: `${user.username},
@@ -132,7 +133,7 @@ export class UsersService {
     password: string,
   ): Promise<UserDocument | undefined> {
     const user = await this.findOneByUsername(username);
-    if (user && user.passwordReset) {
+    if (user && user.passwordReset && user.enabled !== false) {
       if (user.passwordReset.token === code) {
         user.password = password;
         user.passwordReset = undefined;

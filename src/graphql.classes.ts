@@ -15,6 +15,7 @@ export abstract class UpdateUserInput {
     username?: string;
     email?: string;
     password?: string;
+    enabled?: boolean;
 }
 
 export abstract class LoginResult {
@@ -37,6 +38,8 @@ export abstract class IMutation {
 export abstract class IQuery {
     abstract login(user: LoginUserInput): LoginResult | Promise<LoginResult>;
 
+    abstract refreshToken(username: string): string | Promise<string>;
+
     abstract users(): User[] | Promise<User[]>;
 
     abstract user(username?: string, email?: string): User | Promise<User>;
@@ -52,6 +55,7 @@ export abstract class User {
     permissions: string[];
     createdAt: Date;
     updatedAt: Date;
+    enabled: boolean;
 }
 
 export type Date = any;

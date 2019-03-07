@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../../graphql.classes';
 
 export interface UserDocument extends User, Document {
+  // Declaring everything that is not in the GraphQL Schema for a User
   _id: string;
   password: string;
   lowercaseUsername: string;
@@ -11,6 +12,7 @@ export interface UserDocument extends User, Document {
     token: string;
     expiration: Date;
   };
+
   checkPassword(
     password: string,
     callback: (error?: Error, same?: boolean) => any,
@@ -56,6 +58,10 @@ export const UserSchema: Schema = new Schema(
       unique: true,
     },
     passwordReset: PasswordResetSchema,
+    enabled: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     timestamps: true,

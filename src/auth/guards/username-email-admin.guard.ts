@@ -8,7 +8,7 @@ import { AuthenticationError } from 'apollo-server-core';
 // Check if username in field for query matches authenticated user's username
 // or if the user is admin
 @Injectable()
-export class UsernameEmailGuard implements CanActivate {
+export class UsernameEmailAdminGuard implements CanActivate {
   constructor(private usersService: UsersService) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -17,6 +17,7 @@ export class UsernameEmailGuard implements CanActivate {
     let shouldActivate = false;
     if (request.user) {
       const user = <User> request.user;
+      if (this.usersService.isAdmin(user.permissions)) return true;
       const args = ctx.getArgs();
       if (args.username && typeof args.username === 'string') {
         shouldActivate =

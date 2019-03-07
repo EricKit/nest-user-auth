@@ -20,6 +20,7 @@ type User {
   permissions: [String!]!
   createdAt: Date!
   updatedAt: Date!
+  enabled: Boolean!
 }
 
 input CreateUserInput {
@@ -32,4 +33,5 @@ input UpdateUserInput {
   username: String
   email: String
   password: String
+  enabled: Boolean
 }

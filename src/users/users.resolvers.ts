@@ -1,9 +1,9 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UsersService } from './users.service';
-import { GqlAuthGuard } from '../auth/graphql-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateUserInput, User, UpdateUserInput } from '../graphql.classes';
-import { UsernameEmailGuard } from '../auth/guards/username-email.guard';
+import { UsernameEmailAdminGuard } from '../auth/guards/username-email-admin.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { UserInputError, ValidationError } from 'apollo-server-core';
 import { UserDocument } from './schemas/user.schema';
@@ -13,13 +13,13 @@ export class UserResolver {
   constructor(private usersService: UsersService) {}
 
   @Query('users')
-  @UseGuards(GqlAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   async users() {
     return await this.usersService.getAllUsers();
   }
 
   @Query('user')
-  @UseGuards(GqlAuthGuard, UsernameEmailGuard)
+  @UseGuards(JwtAuthGuard, UsernameEmailAdminGuard)
   async user(
     @Args('username') username?: string,
     @Args('email') email?: string,
@@ -74,7 +74,7 @@ export class UserResolver {
   }
 
   @Mutation('updateUser')
-  @UseGuards(GqlAuthGuard, UsernameEmailGuard)
+  @UseGuards(JwtAuthGuard, UsernameEmailAdminGuard)
   async updateUser(
     @Args('username') username: string,
     @Args('fieldsToUpdate') fieldsToUpdate: UpdateUserInput,
@@ -90,7 +90,7 @@ export class UserResolver {
   }
 
   @Mutation('addAdminPermission')
-  @UseGuards(GqlAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   async addAdminPermission(@Args('username') username: string): Promise<User> {
     const user = await this.usersService.addPermission('admin', username);
     if (!user) throw new UserInputError('The user does not exist');
@@ -98,7 +98,7 @@ export class UserResolver {
   }
 
   @Mutation('removeAdminPermission')
-  @UseGuards(GqlAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   async removeAdminPermission(
     @Args('username') username: string,
   ): Promise<User> {

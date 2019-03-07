@@ -4,12 +4,14 @@ import { UsersService } from '../users/users.service';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { LoginUserInput, User, LoginResult } from '../graphql.classes';
 import { UserDocument } from '../users/schemas/user.schema';
+import { ConfigService } from '../config/config.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   async validateUserByPassword(
@@ -26,6 +28,10 @@ export class AuthService {
         loginAttempt.username,
       );
     }
+
+    // If the user is not enabled, disable log in - the token wouldn't work anyways
+    if (userToAttempt && userToAttempt.enabled === false)
+      userToAttempt = undefined;
 
     return new Promise<LoginResult>(resolve => {
       if (!userToAttempt) {
@@ -56,29 +62,43 @@ export class AuthService {
     });
   }
 
-  async validateUserByJwt(
+  async validateJwtPayload(
     payload: JwtPayload,
   ): Promise<UserDocument | undefined> {
     // This will be used when the user has already logged in and has a JWT
     const user = await this.usersService.findOneByUsername(payload.username);
 
-    if (user) {
+    // Ensure the user exists and their account isn't disabled
+    if (user && user.enabled) {
       return user;
     }
 
     return undefined;
   }
 
-  createJwtPayload(user: User) {
+  async refreshJwt(username: string): Promise<string | undefined> {
+    const user = await this.usersService.findOneByUsername(username);
+    if (user) return this.createJwtPayload(user).token;
+    return undefined;
+  }
+
+  createJwtPayload(user: User): { data: JwtPayload; token: string } {
+    const expiresIn = this.configService.jwtExpiresIn;
+    let expiration: Date | undefined;
+    if (expiresIn) {
+      expiration = new Date();
+      expiration.setSeconds(expiration.getSeconds() + expiresIn);
+    }
     const data: JwtPayload = {
       email: user.email,
       username: user.username,
+      expiration,
     };
 
     const jwt = this.jwtService.sign(data);
 
     return {
-      expiresIn: 3600,
+      data,
       token: jwt,
     };
   }

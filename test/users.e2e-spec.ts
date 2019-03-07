@@ -7,15 +7,19 @@ import { disconnect } from 'mongoose';
 import { AuthService } from '../src/auth/auth.service';
 import { LoginResult } from '../src/graphql.classes';
 import { ConfigService } from '../src/config/config.service';
+import { JwtService } from '@nestjs/jwt';
 
 describe('Users (e2e)', () => {
   let app: INestApplication;
   let user1Login: LoginResult;
   let user2Login: LoginResult;
   let adminLogin: LoginResult;
+  let disabledUserLogin: LoginResult;
+  let disabledAdminLogin: LoginResult;
   let usersService: UsersService;
   let configService: ConfigService;
   let authService: AuthService;
+  let jwtService: JwtService;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -36,6 +40,7 @@ describe('Users (e2e)', () => {
     usersService = moduleFixture.get<UsersService>(UsersService);
     configService = moduleFixture.get<ConfigService>(ConfigService);
     authService = moduleFixture.get<AuthService>(AuthService);
+    jwtService = moduleFixture.get<JwtService>(JwtService);
 
     await usersService.deleteAllUsers();
 
@@ -52,8 +57,20 @@ describe('Users (e2e)', () => {
     });
 
     await usersService.create({
+      username: 'disabledUser',
+      email: 'disabledUser@email.com',
+      password: 'password',
+    });
+
+    await usersService.create({
       username: 'admin',
       email: 'admin@email.com',
+      password: 'password',
+    });
+
+    await usersService.create({
+      username: 'disabledAdmin',
+      email: 'disabledAdmin@email.com',
       password: 'password',
     });
 
@@ -79,6 +96,21 @@ describe('Users (e2e)', () => {
       password: 'password',
     });
     if (result) adminLogin = result;
+
+    result = await authService.validateUserByPassword({
+      username: 'disabledUser',
+      password: 'password',
+    });
+    if (result) disabledUserLogin = result;
+
+    result = await authService.validateUserByPassword({
+      username: 'disabledAdmin',
+      password: 'password',
+    });
+    if (result) disabledAdminLogin = result;
+
+    await usersService.update('disabledUser', { enabled: false });
+    await usersService.update('disabledAdmin', { enabled: false });
   });
 
   describe('login', () => {
@@ -112,6 +144,36 @@ describe('Users (e2e)', () => {
         });
     });
 
+    it('fails for disabled user', () => {
+      const data = {
+        query: `{login(user:{username:"disabledUser",password:"password"}){token user{username}}}`,
+      };
+      return request(app.getHttpServer())
+        .post('/graphql')
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+
+    it('fails for disabled admin', () => {
+      const data = {
+        query: `{login(user:{username:"disabledAdmin",password:"password"}){token user{username}}}`,
+      };
+      return request(app.getHttpServer())
+        .post('/graphql')
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+
     it('fails password', () => {
       const data = {
         query: `{login(user:{username:"user1",password:"pAssword1"}){token user{username}}}`,
@@ -137,6 +199,144 @@ describe('Users (e2e)', () => {
         .expect(200)
         .expect(response => {
           expect(response.body).toHaveProperty('errors');
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+  });
+
+  describe('refresh token', () => {
+    it('works with username', async () => {
+      const data = {
+        query: `{refreshToken(username: "uSer1")}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${user1Login.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.data).toHaveProperty('refreshToken');
+          const newToken = response.body.data.refreshToken;
+          const verified = jwtService.verify(newToken);
+          expect(verified).toBeTruthy();
+          const newtokenIssued = new Date(verified.iat * 1000);
+          const oldTokenIssued = new Date(
+            jwtService.verify(user1Login.token).iat * 1000,
+          );
+          expect(
+            newtokenIssued.valueOf() - oldTokenIssued.valueOf(),
+          ).toBeGreaterThan(0);
+        });
+    });
+
+    it('fails for admin on another user', () => {
+      const data = {
+        query: `{refreshToken(username: "user1")}`,
+      };
+      return request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${adminLogin.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+
+    it('fails with wrong username', () => {
+      const data = {
+        query: `{refreshToken(username: "uSer10")}`,
+      };
+      return request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${user1Login.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+
+    it('fails for disabled user', () => {
+      const data = {
+        query: `{refreshToken(username: "disabledUser")}`,
+      };
+      return request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${disabledUserLogin.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+
+    it('fails for disabled admin', () => {
+      const data = {
+        query: `{refreshToken(username: "disabledAdmin")}`,
+      };
+      return request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${disabledAdminLogin.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+
+    it('fails with wrong token', () => {
+      const data = {
+        query: `{refreshToken(username: "user2")}`,
+      };
+      return request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${user1Login.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+
+    it('fails with wrong no token', () => {
+      const data = {
+        query: `{refreshToken(username: "user1")}`,
+      };
+      return request(app.getHttpServer())
+        .post('/graphql')
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+
+    it('fails with mispelled token', () => {
+      const data = {
+        query: `{refreshToken(username: "user1")}`,
+      };
+      return request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${user1Login.token}a`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
           expect(response.body.errors[0].extensions.code).toEqual(
             'UNAUTHENTICATED',
           );
@@ -200,6 +400,38 @@ describe('Users (e2e)', () => {
       return request(app.getHttpServer())
         .post('/graphql')
         .set('Authorization', `Bearer ${user1Login.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+
+    it('fails for disabled user', () => {
+      const data = {
+        query: `{user(username:"disabledUser"){username}}`,
+      };
+      return request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${disabledUserLogin.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+
+    it('fails for disabled admin', () => {
+      const data = {
+        query: `{user(username:"disabledAdmin"){username}}`,
+      };
+      return request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${disabledAdminLogin.token}`)
         .send(data)
         .expect(200)
         .expect(response => {
@@ -277,6 +509,28 @@ describe('Users (e2e)', () => {
           expect(response.body.data.users).toContainEqual({
             username: 'admin',
           });
+          expect(response.body.data.users).toContainEqual({
+            username: 'disabledUser',
+          });
+          expect(response.body.data.users).toContainEqual({
+            username: 'disabledAdmin',
+          });
+        });
+    });
+
+    it('fails for disabled admin', () => {
+      const data = {
+        query: `{users{username}}`,
+      };
+      return request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${disabledAdminLogin.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
         });
     });
 
@@ -313,10 +567,10 @@ describe('Users (e2e)', () => {
   });
 
   describe('forgot password and reset password', () => {
-    let TEST_EMAIL_TO: string;
+    let TEST_EMAIL_TO: string | undefined;
     let testRequest: request.Test;
     beforeAll(async () => {
-      TEST_EMAIL_TO = configService.get(`TEST_EMAIL_TO`);
+      TEST_EMAIL_TO = configService.testEmailTo;
       if (TEST_EMAIL_TO) {
         await usersService.create({
           username: 'userForgotPassword',
@@ -587,8 +841,9 @@ describe('Users (e2e)', () => {
             fieldsToUpdate: {
             username: "newUsername1",
             email: "newUser1@email.com",
-            password: "newPassword"
-          }) {username, email}}`,
+            password: "newPassword",
+            enabled: true
+          }) {username, email, enabled}}`,
       };
 
       await request(app.getHttpServer())
@@ -600,6 +855,7 @@ describe('Users (e2e)', () => {
           expect(response.body.data.updateUser).toMatchObject({
             username: 'newUsername1',
             email: 'newUser1@email.com',
+            enabled: true,
           });
         });
 
@@ -608,6 +864,46 @@ describe('Users (e2e)', () => {
         password: 'newPassword',
       });
       expect(login).toBeTruthy();
+    });
+
+    it('disables a user', async () => {
+      await usersService.create({
+        username: 'userToDisable',
+        email: 'userToDisable@email.com',
+        password: 'password',
+      });
+
+      const result = await authService.validateUserByPassword({
+        username: 'userToDisable',
+        password: 'password',
+      });
+      const token = result!.token;
+
+      const data = {
+        query: `mutation {
+          updateUser(
+            username: "userToDisable",
+            fieldsToUpdate: {
+            enabled: false
+          }) {enabled}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${token!}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.data.updateUser).toMatchObject({
+            enabled: false,
+          });
+        });
+
+      const login = await authService.validateUserByPassword({
+        username: 'userToDisable',
+        password: 'password',
+      });
+      expect(login).not.toBeTruthy();
     });
 
     it('works with for admin', async () => {
@@ -882,6 +1178,26 @@ describe('Users (e2e)', () => {
           );
         });
     });
+
+    it('fails for disabled user', async () => {
+      const data = {
+        query: `mutation {
+          updateUser(username: "disabledUser",
+            fieldsToUpdate: {email: "newEmail11@email.com"})
+            {username, email}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${disabledUserLogin.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
   });
 
   describe('admin permissions', () => {
@@ -965,38 +1281,10 @@ describe('Users (e2e)', () => {
         });
     });
 
-    it('fails with bad credentials', async () => {
-      await usersService.create({
-        username: 'userToBeAdmin2',
-        email: 'userToBeAdmin2@email.com',
-        password: 'password',
-      });
-
-      const result = await authService.validateUserByPassword({
-        username: 'userToBeAdmin2',
-        password: 'password',
-      });
-      const token = result!.token;
-
+    it('fails for user', async () => {
       // Own user's token
-      let data = {
-        query: `mutation {addAdminPermission(username: "userToBeAdmin2") {permissions}}`,
-      };
-
-      await request(app.getHttpServer())
-        .post('/graphql')
-        .set('Authorization', `Bearer ${token}`)
-        .send(data)
-        .expect(200)
-        .expect(response => {
-          expect(response.body.errors[0].extensions.code).toEqual(
-            'UNAUTHENTICATED',
-          );
-        });
-
-      // Another user's token (non-admin)
-      data = {
-        query: `mutation {addAdminPermission(username: "userToBeAdmin2") {permissions}}`,
+      const data = {
+        query: `mutation {addAdminPermission(username: "user1") {permissions}}`,
       };
 
       await request(app.getHttpServer())
@@ -1009,10 +1297,63 @@ describe('Users (e2e)', () => {
             'UNAUTHENTICATED',
           );
         });
+    });
 
-      // No token
-      data = {
-        query: `mutation {addAdminPermission(username: "userToBeAdmin2") {permissions}}`,
+    it('fails for user trying to update another', async () => {
+      // Another user's token (non-admin)
+      const data = {
+        query: `mutation {addAdminPermission(username: "user1") {permissions}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${user2Login.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+
+    it('fails for disabled user', async () => {
+      const data = {
+        query: `mutation {addAdminPermission(username: "disabledUser") {permissions}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${disabledUserLogin.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+
+    it('fails for disabled admin', async () => {
+      const data = {
+        query: `mutation {addAdminPermission(username: "user1") {permissions}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${disabledAdminLogin.token}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
+    });
+
+    it('fails for no token', async () => {
+      const data = {
+        query: `mutation {addAdminPermission(username: "user1") {permissions}}`,
       };
 
       await request(app.getHttpServer())
@@ -1024,10 +1365,11 @@ describe('Users (e2e)', () => {
             'UNAUTHENTICATED',
           );
         });
+    });
 
-      // Mispelled token
-      data = {
-        query: `mutation {addAdminPermission(username: "userToBeAdmin2") {permissions}}`,
+    it('fails for invalid token', async () => {
+      const data = {
+        query: `mutation {addAdminPermission(username: "user1") {permissions}}`,
       };
 
       await request(app.getHttpServer())
