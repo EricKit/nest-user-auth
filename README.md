@@ -6,7 +6,7 @@ Add email verification when a user registers.
 
 ## Purpose
 
-If this project helps you, please add a star! This project was created due to the lack of documentation and code examples integrating the technologies listed below. The goal of this project is to provide best practices code examples of NestJS implementing multiple newer technologies. The project attempts to use best practices, if you recognize an anti-pattern, please post an issue.
+If this project helps you, please add a star! This project was created due to the challenges I had using the documentation and code examples integrating the technologies listed below. The goal of this project is to provide best practices code examples implementing multiple NestJS techniques. If you recognize an anti-pattern or a better way to do something, please post an issue. The project is written with `"strict": true`.
 
 This is a boiler plate project to start with user authentication. Adding other GraphQL models to this project will be easy following the same structure. User auth has always been one of the hardest and most common thing to implement, so that is what is implemented in this project. Feel free to throw spears at this project or recommend updates. Standard disclaimer: In no way has this been vetted by security experts.
 
@@ -53,9 +53,9 @@ EMAIL_FROM=from@somedomain.com
 
 `EMAIL_SERVICE` Nodemailer "Well Known Service" https://nodemailer.com/smtp/well-known/
 
-`EMAIL_USERNAME`, `EMAIL_PASSWORD` Information for your SMTP service. On Mailgun it is the credentials under Domains -> SMTP Credentials. Use the SMTP service, not the API.
+`EMAIL_USERNAME`, `EMAIL_PASSWORD` Information for the SMTP service. On Mailgun it is the credentials under Domains -> SMTP Credentials. Use the SMTP service, not the API.
 
-`EMAIL_FROM` is the email address the program will use as the from address.
+`EMAIL_FROM` The email address the program will use as the from address.
 
 ### Start the server
 
@@ -67,9 +67,9 @@ That's it, the graphQL playground is found at `http://localhost:3000/graphql`
 
 ## Users
 
-Add a user via the graphql playground or your frontend. See example mutations and queries below.
+Add a user via the graphql playground or a frontend. See example mutations and queries below.
 
-Update that user's Document to have the string `admin` in the permissions array. Only an admin can add another admin, so your first one must be done manually. MongoDB Compass is a great tool to modify fields. That user can now add the admin permission or remove the admin permission to or from other users.
+Update that user's Document to have the string `admin` in the permissions array. Only an admin can add another admin, so the first user must be done manually. MongoDB Compass is a great tool to modify fields. That user can now add the admin permission or remove the admin permission to or from other users.
 
 The UsersService `update` method will update any fields which are valid and not duplicates, even if other fields are invalid or duplicates.
 
@@ -77,7 +77,7 @@ Users can change their `username`, `password`, `email`, or `enabled` status via 
 
 If a user sets `enabled` to `false` on their account, they cannot log back in (because it is disabled), only an admin can change it back.
 
-Because you can change both unique properties username and email, \_id should be used for many-to-many relationships.
+Because both unique properties username and email can be changed, \_id should be used for many-to-many relationships.
 
 See `test/users.e2e-spec.ts` for expected results to mutations and queries.
 

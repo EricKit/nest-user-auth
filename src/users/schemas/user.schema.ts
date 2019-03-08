@@ -13,13 +13,23 @@ export interface UserDocument extends User, Document {
     expiration: Date;
   };
 
-  checkPassword(
-    password: string,
-    callback: (error?: Error, same?: boolean) => any,
-  ): void;
+  /**
+   * Checks if the user's password provided matches the user's password hash
+   *
+   * @param {string} password The password to attempt
+   * @returns {Promise<boolean>} result of the match. Will throw an error if one exists from bcrypt
+   */
+  checkPassword(password: string): Promise<boolean>;
 }
 
 export interface IUserModel extends Model<UserDocument> {
+  /**
+   * Uses the same method as the schema to validate an email. Matches HTML 5.2 spec.
+   *
+   * @param {string} email address to validate
+   * @returns {boolean} if the email is valid
+   * @memberof IUserModel
+   */
   validateEmail(email: string): boolean;
 }
 
@@ -80,6 +90,7 @@ UserSchema.pre<UserDocument>('save', function(next) {
 
   user.lowercaseUsername = user.username.toLowerCase();
   user.lowercaseEmail = user.email.toLowerCase();
+
   // Make sure not to rehash the password if it is already hashed
   if (!user.isModified('password')) {
     return next();
@@ -138,21 +149,22 @@ UserSchema.pre<Query<UserDocument>>('findOneAndUpdate', function(next) {
   }
 });
 
-// TODO: Redo the callback to match the bcrypt or make it nicer
 UserSchema.methods.checkPassword = function(
   password: string,
-  callback: (error?: Error, same?: boolean) => any,
-) {
+): Promise<boolean> {
   const user = this;
 
-  bcrypt.compare(password, user.password, (err, isMatch) => {
-    if (err) {
-      return callback(err);
-    }
-    callback(undefined, isMatch);
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(password, user.password, (error, isMatch) => {
+      if (error) {
+        reject(error);
+      }
+      resolve(isMatch);
+    });
   });
 };
 
+// Mongoose Static Method - added so a service can validate an email with the same criteria the schema is using
 UserSchema.statics.validateEmail = function(email: string): boolean {
   return validateEmail(email);
 };
