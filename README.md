@@ -69,13 +69,13 @@ Because you can change both unique properties username and email, \_id should be
 
 See `test/users.e2e-spec.ts` for expected results to mutations and queries.
 
-### Environments
+## Environments
 
 Add a `test.env` file which contains a different MONGO_URI that `development.env`. See the testing section for details.
 
 Add any other environments for production and test. The environment variable `NODE_ENV` is used to determine the correct environment to work in. The program defaults to `development` if there is not a `NODE_ENV` environment variable set. For example, if the configuration is stored in `someEnv.env` file in production then set the `NODE_ENV` environment variable to `someEnv`. This can be done through package.json scripts, local environment variables, or your launch.json configuration in VS Code. If you do nothing, it will look for `development.env`. Do not commit this file.
 
-### Authentication
+## Authentication
 
 Add the token to your headers `{"Authorization": "Bearer eyj2aGc..."}` to be authenticated via the JwtAuthGuard.
 
@@ -93,13 +93,13 @@ The `AdminGuard` only allows admins.
 
 The `JwtAuthGuard` ensures that there is a valid JWT and that the user associated with the JWT exists in the database.
 
-### Testing
+## Testing
 
 To test, ensure that the environment is different than the `development` environment. When the end to end tests run, they will delete all users in the database specified in the environment file on start. Currently running `npm run test:e2e` will set `NODE_ENV` to `test` based on `package.json` scripts. This will default to the `test.env` file.
 
 Create `test.env` to have a different database than the `development.env` file. To test Nodemailer include the variable `TEST_EMAIL_TO` which is the email that will receive the password reset email.
 
-#### Example `test.env`
+### Example `test.env`
 
 ```env
 MONGO_URI=mongodb://localhost:27017/user-auth-test
@@ -111,7 +111,7 @@ EMAIL_FROM=from@somedomain.com
 TEST_EMAIL_TO=realEmailAddress@somedomain.com
 ```
 
-### nodemon
+## nodemon
 
 To use nodemon there is a small change required. Because the classes file is built from the schema, it is recreated on each launch. Add "src/graphql.classes.ts" in 'nodemon.json' to ignore the changes on that file.
 
@@ -121,7 +121,7 @@ To use nodemon there is a small change required. Because the classes file is bui
 }
 ```
 
-### GraphQL Playground Examples
+## GraphQL Playground Examples
 
 ```graphql
 query loginQuery($loginUser: LoginUserInput!) {
