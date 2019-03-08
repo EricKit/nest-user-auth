@@ -108,16 +108,13 @@ TEST_EMAIL_TO=realEmailAddress@somedomain.com
 
 ### nodemon
 
-There is a minor change required to use nodemon. In `src/app.module.ts` comment out the following
+To use nodemon there is a small change required. Because the classes file is built from the schema, it is recreated on each launch. Add "src/graphql.classes.ts" in 'nodemon.json' to ignore the changes on that file.
 
 ```typescript
-      definitions: {
-        path: join(process.cwd(), 'src/graphql.classes.ts'),
-        outputAs: 'class',
-      },
+{
+  "ignore": ["src/**/*.spec.ts", "src/graphql.classes.ts"],
+}
 ```
-
-Under the Model Mangement section it describes how this app builds the classes from your GraphQL schema. This creates a new file, which causes nodemon to restart. When it restarts, it rebuilds the file, and continues to restart. If the schema is changed, uncomment these lines, let it run and update the classes, then recomment them.
 
 ### GraphQL Playground Examples
 
