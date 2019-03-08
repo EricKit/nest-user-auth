@@ -28,7 +28,7 @@ The database handles creating the lowercase value with hooks for `save` and `fin
 
 Ensure a MongoDB server is running locally.
 
-To use email, register with any dedicated SMTP server. Gmail doesn't let you change your from address and has other limitations. Mailgun is recommended and works out of the box after you register. With mailgun use their SMTP service, not the API.
+### development.env file
 
 Add a `development.env` to the root of your project.
 
@@ -41,11 +41,23 @@ EMAIL_PASSWORD=emailSMTPpassword
 EMAIL_FROM=from@somedomain.com
 ```
 
-Optional Parameters:
+#### Required Parameters
+
+`MONGO_URI` the location of your mongo server and database name you want
+
+`JWT_SECRET` a secret string used to make the keys. Create a random string.
+
+#### Optional Parameters
 
 `JWT_EXPIRES_IN` Seconds until token expires. If not set, there will be no expiration.
 
-Start the server
+`EMAIL_SERVICE` Nodemailer "Well Known Service" https://nodemailer.com/smtp/well-known/
+
+`EMAIL_USERNAME`, `EMAIL_PASSWORD` Information for your SMTP service. On Mailgun it is the credentials under Domains -> SMTP Credentials. Use the SMTP service, not the API.
+
+`EMAIL_FROM` is the email address the program will use as the from address.
+
+### Start the server
 
 `npm install`
 
