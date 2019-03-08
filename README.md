@@ -6,13 +6,13 @@ Add email verification when a user registers.
 
 ## Purpose
 
-The goal of this project is to provide code examples to integrate the technologies used since I had a rough time finding good documenation compared to previous projects in Django. If this project helps you, please add a star!
+If this project helps you, please add a star! This project was created due to the lack of documentation and code examples integrating the technologies listed below. The goal of this project is to provide best practices code examples of NestJS implementing multiple newer technologies. The project attempts to use best practices, if you recognize an anti-pattern, please post an issue.
 
-This is a boiler plate project to start with user authentication. Adding other GraphQL models to this project will be easy following the same structure. User auth has always been the hardest and most common thing to implement, so that is what is implemented in this project. Feel free to throw spears at this project or recommend updates. Standard disclaimer: In no way has this been vetted by security experts.
+This is a boiler plate project to start with user authentication. Adding other GraphQL models to this project will be easy following the same structure. User auth has always been one of the hardest and most common thing to implement, so that is what is implemented in this project. Feel free to throw spears at this project or recommend updates. Standard disclaimer: In no way has this been vetted by security experts.
 
 ## Technologies
 
-This project is built using MongoDB with Mongoose for the database. NestJS is used as teh framework. GraphQL, Apollo Server, and `@nestjs/graphql` are used for the API. Passport is used for authentication and the strategy is Passport-JWT. Nodemailer is used for email password reset. Joi is used to validate the environment file.
+This project is built using MongoDB with Mongoose for the database. NestJS is used as the framework. GraphQL, Apollo Server, and `@nestjs/graphql` are used for the API. Passport is used for authentication and the strategy is Passport-JWT. Nodemailer is used for email password reset. Joi is used to validate the environment file.
 
 ## Model Management
 
