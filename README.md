@@ -35,6 +35,7 @@ Add a `development.env` to the root of your project.
 ```env
 MONGO_URI=mongodb://localhost:27017/user-auth
 JWT_SECRET=someSecret
+EMAIL_ENABLED=true
 EMAIL_SERVICE=Mailgun
 EMAIL_USERNAME=email@mailgun.com
 EMAIL_PASSWORD=emailSMTPpassword
@@ -51,11 +52,15 @@ EMAIL_FROM=from@somedomain.com
 
 `JWT_EXPIRES_IN` Seconds until token expires. If not set, there will be no expiration.
 
+`EMAIL_ENABLED` If email services should be used, EMAIL\_\* fields are required if enabled.
+
 `EMAIL_SERVICE` Nodemailer "Well Known Service" https://nodemailer.com/smtp/well-known/
 
 `EMAIL_USERNAME`, `EMAIL_PASSWORD` Information for the SMTP service. On Mailgun it is the credentials under Domains -> SMTP Credentials. Use the SMTP service, not the API.
 
 `EMAIL_FROM` The email address the program will use as the from address.
+
+`TEST_EMAIL_TO` When running tests, where emails will be sent. This should be a real email address you own to verify emails are getting out.
 
 ### Start the server
 

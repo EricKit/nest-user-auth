@@ -38,10 +38,23 @@ export class ConfigService {
       MONGO_URI: Joi.string().required(),
       JWT_SECRET: Joi.string().required(),
       JWT_EXPIRES_IN: Joi.number(),
-      EMAIL_SERVICE: Joi.string(),
-      EMAIL_USERNAME: Joi.string(),
-      EMAIL_PASSWORD: Joi.string(),
-      EMAIL_FROM: Joi.string(),
+      EMAIL_ENABLED: Joi.boolean().default(false),
+      EMAIL_SERVICE: Joi.string().when('EMAIL_ENABLED', {
+        is: true,
+        then: Joi.required(),
+      }),
+      EMAIL_USERNAME: Joi.string().when('EMAIL_ENABLED', {
+        is: true,
+        then: Joi.required(),
+      }),
+      EMAIL_PASSWORD: Joi.string().when('EMAIL_ENABLED', {
+        is: true,
+        then: Joi.required(),
+      }),
+      EMAIL_FROM: Joi.string().when('EMAIL_ENABLED', {
+        is: true,
+        then: Joi.required(),
+      }),
       TEST_EMAIL_TO: Joi.string(),
     });
 
@@ -90,5 +103,9 @@ export class ConfigService {
 
   get testEmailTo(): string | undefined {
     return this.envConfig.TEST_EMAIL_TO;
+  }
+
+  get emailEnabled(): boolean {
+    return Boolean(this.envConfig.EMAIL_ENABLED).valueOf();
   }
 }

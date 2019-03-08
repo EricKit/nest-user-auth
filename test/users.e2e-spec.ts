@@ -212,6 +212,9 @@ describe('Users (e2e)', () => {
         query: `{refreshToken(username: "uSer1")}`,
       };
 
+      await new Promise(resolve => {
+        setTimeout(resolve, 1000);
+      });
       await request(app.getHttpServer())
         .post('/graphql')
         .set('Authorization', `Bearer ${user1Login.token}`)
@@ -567,19 +570,21 @@ describe('Users (e2e)', () => {
   });
 
   describe('forgot password and reset password', () => {
-    let TEST_EMAIL_TO: string | undefined;
+    let testEmailTo: string | undefined;
+    let runEmailTests = false;
     let testRequest: request.Test;
     beforeAll(async () => {
-      TEST_EMAIL_TO = configService.testEmailTo;
-      if (TEST_EMAIL_TO) {
+      testEmailTo = configService.testEmailTo;
+      if (testEmailTo && configService.emailEnabled) {
+        runEmailTests = true;
         await usersService.create({
           username: 'userForgotPassword',
-          email: TEST_EMAIL_TO,
+          email: testEmailTo,
           password: 'oldPassword',
         });
 
         const data = {
-          query: `{forgotPassword(email: "${TEST_EMAIL_TO}")}`,
+          query: `{forgotPassword(email: "${testEmailTo}")}`,
         };
         testRequest = request(app.getHttpServer())
           .post('/graphql')
@@ -588,12 +593,12 @@ describe('Users (e2e)', () => {
     });
 
     it('responds with 200', () => {
-      if (TEST_EMAIL_TO) return testRequest.expect(200);
+      if (runEmailTests) return testRequest.expect(200);
     });
 
     it('modifies the user with token and reset password works', async () => {
-      if (TEST_EMAIL_TO) {
-        let user = await usersService.findOneByEmail(TEST_EMAIL_TO);
+      if (runEmailTests) {
+        let user = await usersService.findOneByEmail(testEmailTo!);
         expect(user!.passwordReset).toBeTruthy();
         expect(user!.passwordReset!.token).toBeTruthy();
         expect(user!.passwordReset!.expiration).toBeInstanceOf(Date);
@@ -667,7 +672,7 @@ describe('Users (e2e)', () => {
         ).toBeTruthy();
 
         // Ensure the token was removed from the user
-        user = await usersService.findOneByEmail(TEST_EMAIL_TO);
+        user = await usersService.findOneByEmail(testEmailTo!);
         expect(user!.passwordReset).toBeFalsy();
 
         // Make sure the old password does not work
