@@ -6,6 +6,8 @@ Add email verification when a user registers.
 
 ## Purpose
 
+The goal of this project is to provide code examples to integrate the technologies used since I had a rough time finding good documenation compared to previous projects in Django. If this project helps you, please add a star!
+
 This is a boiler plate project to start with user authentication. Adding other GraphQL models to this project will be easy following the same structure. User auth has always been the hardest and most common thing to implement, so that is what is implemented in this project. Feel free to throw spears at this project or recommend updates. Standard disclaimer: In no way has this been vetted by security experts.
 
 ## Technologies
