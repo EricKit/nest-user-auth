@@ -48,15 +48,18 @@ Optional Parameters:
 Start the server
 
 `npm install`
+
 `npm run start`
 
-Add a user via the graphql playground or your frontend.
+That's it, the graphQL playground is found at `http://localhost:3000/graphql`
 
-`http://localhost:3000/graphql`
+## Users
 
-Update that user's Document to have the string `admin` in the permissions array. MongoDB Compass is a great tool to modify fields. That user can now add the admin permission or remove the admin permission to or from other users.
+Add a user via the graphql playground or your frontend. See example mutations and queries below.
 
-The UsersService `update` method will update any fields which are valid and not duplicates, even if others are invalid or duplicates.
+Update that user's Document to have the string `admin` in the permissions array. Only an admin can add another admin, so your first one must be done manually. MongoDB Compass is a great tool to modify fields. That user can now add the admin permission or remove the admin permission to or from other users.
+
+The UsersService `update` method will update any fields which are valid and not duplicates, even if other fields are invalid or duplicates.
 
 Users can change their `username`, `password`, `email`, or `enabled` status via a mutation. Changing their username will make their token unusable (it won't authenticate when the user presenting the token's username is checked against the token's username). This may or may not be the desired behavior. If using on a front end, make it obvious that you can change your username and it'll log the user out (front end must get a new token via logging in).
 
@@ -180,7 +183,7 @@ mutation updateUser($updateUser: UpdateUserInput!) {
   "updateUser": {
     "username": "newUserName",
     "password": "newPassword",
-    "email": "newEmail@test.com"
+    "email": "newEmail@test.com",
     "enabled": false
   }
 }
