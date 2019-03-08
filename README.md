@@ -52,7 +52,7 @@ EMAIL_FROM=from@somedomain.com
 
 `JWT_EXPIRES_IN` Seconds until token expires. If not set, there will be no expiration.
 
-`EMAIL_ENABLED` If email services should be used, EMAIL\_\* fields are required if enabled.
+`EMAIL_ENABLED` If email services should be used, `EMAIL_*` fields are required if enabled.
 
 `EMAIL_SERVICE` Nodemailer "Well Known Service" https://nodemailer.com/smtp/well-known/
 
