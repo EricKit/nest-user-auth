@@ -130,7 +130,7 @@ TEST_EMAIL_TO=realEmailAddress@somedomain.com
 
 ## nodemon
 
-To use nodemon there is a small change required. Because the classes file is built from the schema, it is recreated on each launch. Add "src/graphql.classes.ts" in 'nodemon.json' to ignore the changes on that file.
+To use nodemon there is a small change required. Because the classes file is built from the schema, it is recreated on each launch. This causes nodemon to restart on a loop. Add "src/graphql.classes.ts" in 'nodemon.json' to ignore the changes on that file.
 
 ```typescript
 {
