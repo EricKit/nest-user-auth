@@ -1,10 +1,9 @@
-import { Schema, model, Model, Document, Query } from 'mongoose';
+import { Schema, model, Model, Document, Query, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../graphql.classes';
 
 export interface UserDocument extends User, Document {
   // Declaring everything that is not in the GraphQL Schema for a User
-  _id: string;
   password: string;
   lowercaseUsername: string;
   lowercaseEmail: string;

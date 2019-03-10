@@ -1,4 +1,5 @@
 scalar Date
+scalar MongoObjectId
 
 type Query {
   users: [User!]
@@ -21,6 +22,7 @@ type User {
   createdAt: Date!
   updatedAt: Date!
   enabled: Boolean!
+  _id: MongoObjectId!
 }
 
 input CreateUserInput {

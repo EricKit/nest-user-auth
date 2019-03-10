@@ -56,6 +56,8 @@ export abstract class User {
     createdAt: Date;
     updatedAt: Date;
     enabled: boolean;
+    _id: MongoObjectId;
 }
 
 export type Date = any;
+export type MongoObjectId = any;
