@@ -6,6 +6,8 @@ This project was created due to the challenges I had using the documentation and
 
 This is a boiler plate project to start with user authentication. Adding other GraphQL models to this project will be easy following the same structure. User auth has always been one of the hardest and most common thing to implement, so that is what is implemented in this project. Feel free to throw spears at this project or recommend updates. Standard disclaimer: In no way has this been vetted by security experts.
 
+![preview](assets/preview.png)
+
 ## Getting Started
 
 Ensure a MongoDB server is running locally.
