@@ -6,9 +6,9 @@
 
 If this project helps you, please add a star! If you see an issue, please post it!
 
-The goal of this project is to provide code examples using best practices implementing multiple NestJS techniques. After facing many challenges making this project, I decided to open source it to provide a more comprehensive code example to anyone facing the same problems. If you recognize an anti-pattern or a better way to do something, please post an issue as I want this project's patterns to be the `right answer`. The project is written with `"strict": true`.
+After facing many challenges starting with NestJS, I decided to open source a starter project to provide a comprehensive integrated code example to anyone facing the same problems. If you recognize an anti-pattern or a better way to do something, please post an issue. The goal is to create an integrated project which provides the `best answer`.
 
-This is a boiler plate project to start with user authentication. Adding other GraphQL schemas to this project will be easy following the same structure. User auth has always been one of the hardest and most common thing to implement, so that is what is implemented in this project.
+This project is a implements user authentication. Adding other GraphQL schemas to this project will be easy following the same structure. User auth has always been one of the hardest and most common thing to implement, so that is what is implemented in this project.
 
 ![preview](assets/preview.png)
 
@@ -18,7 +18,7 @@ Ensure a MongoDB server is running locally.
 
 ### Create a development.env file
 
-Add a `development.env` to the root of your project.
+Add a `development.env` file to the root of your project.
 
 ```env
 MONGO_URI=mongodb://localhost:27017/user-auth
