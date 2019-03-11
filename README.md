@@ -1,34 +1,16 @@
 # nest-user-auth
 
-## Next tasks
+If this project helps you, please add a star! It is built using MongoDB with Mongoose for the database. NestJS as the overarching framework. GraphQL and Apollo Server are used for the API. Passport is used for authentication and the strategy is Passport-JWT. Nodemailer is used for email password reset. Joi is used to validate the environment file.
 
-Add email verification when a user registers.
-
-## Purpose
-
-If this project helps you, please add a star! This project was created due to the challenges I had using the documentation and code examples integrating the technologies listed below. The goal of this project is to provide best practices code examples implementing multiple NestJS techniques. If you recognize an anti-pattern or a better way to do something, please post an issue. The project is written with `"strict": true`.
+This project was created due to the challenges I had using the documentation and code examples integrating the above technologies. The goal of this project is to provide best practices code examples implementing multiple NestJS techniques. If you recognize an anti-pattern or a better way to do something, please post an issue. The project is written with `"strict": true`.
 
 This is a boiler plate project to start with user authentication. Adding other GraphQL models to this project will be easy following the same structure. User auth has always been one of the hardest and most common thing to implement, so that is what is implemented in this project. Feel free to throw spears at this project or recommend updates. Standard disclaimer: In no way has this been vetted by security experts.
 
-## Technologies
-
-This project is built using MongoDB with Mongoose for the database. NestJS is used as the framework. GraphQL, Apollo Server, and `@nestjs/graphql` are used for the API. Passport is used for authentication and the strategy is Passport-JWT. Nodemailer is used for email password reset. Joi is used to validate the environment file.
-
-## Model Management
-
-The goal is to have one truth point for the models. That is the `*.types.graphql` files. They contain the GraphQL schema. `@nestjs/graphql` creates `graphql.classes.ts` file to match the GraphQL schema. These classes are used as the base class for the Mongoose Schema and in place of DTOs. Of note, I'd like to use the IMutation and IQuery methods in the resolvers instead of replicating them, but that doesn't seem possible right now.
-
-Username is the primary field to identify a user in a request. Initially username or email were accepted, but for simplicity the schema moved to only username. Both are in the JWT data. Email could be used too. Both are unique.
-
-The database stores a unique lowercase value for both username and email. This is to lookup the user's username or email without case being a factor. Lowercase username and email are also unique, so user@Email.com and user@email.com can't both register. The normal cased version is used for everything but lookup. GraphQL Schemas are not aware lowercase values exist intentionally.
-
-The database handles creating the lowercase value with hooks for `save` and `findOneAndUpdate`.
-
-## Usage
+## Getting Started
 
 Ensure a MongoDB server is running locally.
 
-### development.env file
+### Create a development.env file
 
 Add a `development.env` to the root of your project.
 
@@ -69,6 +51,16 @@ EMAIL_FROM=from@somedomain.com
 `npm run start`
 
 That's it, the graphQL playground is found at `http://localhost:3000/graphql`
+
+## Model Management
+
+The goal is to have one truth point for the models and extend thoss models. The starting point is the `*.types.graphql` files. They contain the GraphQL schema and have properties that every model, at a minimum, should have. `@nestjs/graphql` creates `graphql.classes.ts` file to match the GraphQL schema when the program is started. These classes are used as the base class for the Mongoose Schema and in place of DTOs. Of note, the IMutation and IQuery classes created by `@nestjs/graphql` are not used for the resolvers, though it would be nice if they were. It doesn't appear possible without modification of the `grahql.classes.ts` file because all the methods aren't implemented in the same resolver.
+
+Username is the primary field to identify a user in a request. Initially username or email were accepted, but for simplicity the schema moved to only username. Both are in the JWT data. Email could be used too. Both are unique.
+
+The database stores a unique lowercase value for both username and email. This is to lookup the user's username or email without case being a factor. Lowercase username and email are also unique, so user@Email.com and user@email.com can't both register. The normal cased version is used for everything but lookup. GraphQL Schemas are not aware lowercase values exist intentionally.
+
+The database handles creating the lowercase value with hooks for `save` and `findOneAndUpdate`. If another method is used to update or save a User, ensure a hook is created to create the lowercase values.
 
 ## Users
 
@@ -130,7 +122,11 @@ TEST_EMAIL_TO=realEmailAddress@somedomain.com
 
 ## nodemon
 
-To use nodemon there is a small change required. Because the classes file is built from the schema, it is recreated on each launch. This causes nodemon to restart on a loop. Add "src/graphql.classes.ts" in 'nodemon.json' to ignore the changes on that file.
+To use nodemon there is a small change required. Because the classes file is built from the schema, it is recreated on each launch. This causes nodemon to restart on a loop. Add `src/graphql.classes.ts` to the `ignore` array in `nodemon.json` to ignore the changes to that file.
+
+## Next tasks
+
+Add email verification when a user registers.
 
 ```typescript
 {
