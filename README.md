@@ -1,10 +1,14 @@
 # nest-user-auth
 
-If this project helps you, please add a star! It is built using MongoDB with Mongoose for the database. NestJS as the overarching framework. GraphQL and Apollo Server are used for the API. Passport is used for authentication and the strategy is Passport-JWT. Nodemailer is used for email password reset. Joi is used to validate the environment file.
+### Best practices for NestJS, GraphQL, and MongoDB
 
-This project was created due to the challenges I had using the documentation and code examples integrating the above technologies. The goal of this project is to provide best practices code examples implementing multiple NestJS techniques. If you recognize an anti-pattern or a better way to do something, please post an issue. The project is written with `"strict": true`.
+![last commit](https://img.shields.io/github/last-commit/EricKit/nest-user-auth.svg) ![repo size](https://img.shields.io/github/repo-size/EricKit/nest-user-auth.svg) ![open issues](https://img.shields.io/github/issues-raw/EricKit/nest-user-auth.svg) ![liscense](https://img.shields.io/github/license/erickit/nest-user-auth.svg)
 
-This is a boiler plate project to start with user authentication. Adding other GraphQL models to this project will be easy following the same structure. User auth has always been one of the hardest and most common thing to implement, so that is what is implemented in this project. Feel free to throw spears at this project or recommend updates. Standard disclaimer: In no way has this been vetted by security experts.
+If this project helps you, please add a star! If you see an issue, please post it!
+
+The goal of this project is to provide code examples using best practices implementing multiple NestJS techniques. After facing many challenges making this project, I decided to open source it to provide a more comprehensive code example to anyone facing the same problems. If you recognize an anti-pattern or a better way to do something, please post an issue as I want this project's patterns to be the `right answer`. The project is written with `"strict": true`.
+
+This is a boiler plate project to start with user authentication. Adding other GraphQL schemas to this project will be easy following the same structure. User auth has always been one of the hardest and most common thing to implement, so that is what is implemented in this project.
 
 ![preview](assets/preview.png)
 
