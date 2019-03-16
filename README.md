@@ -60,13 +60,13 @@ That's it, the graphQL playground is found at `http://localhost:3000/graphql`
 
 ## Model Management
 
-One of the largest issues is how to not repeat the structore of the data multiple times. The goal is to have one truth point for the models and extend that data when more data is needed. The starting point is the `*.types.graphql` files. They contain the GraphQL schema and have properties that every model, at a minimum, should have. `@nestjs/graphql` creates a `graphql.classes.ts` file to match the GraphQL schema when the program is started. These classes are used as the base class for the Mongoose Schema and in place of DTOs. Of note, the IMutation and IQuery classes created by `@nestjs/graphql` are not used for the resolvers, though it would be nice if they were. It doesn't appear possible without modification of the `grahql.classes.ts` file because all the methods aren't implemented in the same resolver.
+It is challenging not to repeat the structure of the models in the GraphQL schema, Mongo schema, and Typescript interfaces. The goal is to have one truth point for the models and extend that data when more data is needed. The starting point is the `*.types.graphql` files. They contain the GraphQL schema and have properties that every model, at a minimum, should have. `@nestjs/graphql` creates a `graphql.classes.ts` file to match the GraphQL schema when the program is started. These classes are used as the base class for the Mongoose Schema and in place of DTOs. Of note, the IMutation and IQuery classes created by `@nestjs/graphql` are not used for the resolvers, though it would be nice if they were. It doesn't appear possible without modification of the `grahql.classes.ts` file because all the methods aren't implemented in the same resolver.
 
 Username is the primary field to identify a user in a request. Initially username or email were accepted, but for simplicity the schema moved to only username. Both username and email fields are in the JWT data, and because they are both unique, either could be used.
 
 The database stores a unique lowercase value for both username and email. This is to lookup the user's username or email without case being a factor. Lowercase username and email are also unique, therefore user@Email.com and user@email.com can't both register. The normal cased version is used for everything except lookup. GraphQL Schemas are not aware lowercase values exist intentionally.
 
-The database handles creating the lowercase value with hooks for `save` and `findOneAndUpdate`. If another method is used to update or save a User, ensure a hook is created to create the lowercase values.
+The database handles creating the lowercase values with hooks for `save` and `findOneAndUpdate`. If another method is used to update or save a User, ensure a hook is created to create the lowercase values.
 
 ## Users
 
@@ -130,15 +130,15 @@ TEST_EMAIL_TO=realEmailAddress@somedomain.com
 
 To use nodemon there is a small change required. Because the classes file is built from the schema, it is recreated on each launch. This causes nodemon to restart on a loop. Add `src/graphql.classes.ts` to the `ignore` array in `nodemon.json` to ignore the changes to that file.
 
-## Next tasks
-
-Add email verification when a user registers.
-
 ```typescript
 {
   "ignore": ["src/**/*.spec.ts", "src/graphql.classes.ts"],
 }
 ```
+
+## Next tasks
+
+Add email verification when a user registers.
 
 ## GraphQL Playground Examples
 
