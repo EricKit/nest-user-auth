@@ -4,6 +4,8 @@
 
 If this project helps you, please add a star! If you see an issue, please post it!
 
+This project uses NestJS, GraphQL, and MongoDB.
+
 After facing many challenges starting with NestJS, I decided to open source a starter project to provide a comprehensive, integrated code example to anyone facing the same problems. If you recognize an anti-pattern or a better way to do something, please post an issue.
 
 This project implements user authentication. Adding other GraphQL schemas to this project will be easy following the same structure. User auth has always been one of the hardest and most common thing to implement, so that is what is implemented in this project.
