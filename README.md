@@ -1,7 +1,5 @@
 # nest-user-auth
 
-### Best practices for NestJS, GraphQL, and MongoDB
-
 ![last commit](https://img.shields.io/github/last-commit/EricKit/nest-user-auth.svg) ![repo size](https://img.shields.io/github/repo-size/EricKit/nest-user-auth.svg) ![open issues](https://img.shields.io/github/issues-raw/EricKit/nest-user-auth.svg) ![liscense](https://img.shields.io/github/license/erickit/nest-user-auth.svg)
 
 If this project helps you, please add a star! If you see an issue, please post it!
@@ -60,7 +58,11 @@ That's it, the graphQL playground is found at `http://localhost:3000/graphql`
 
 ## Model Management
 
-It is challenging not to repeat the structure of the models in the GraphQL schema, Mongo schema, and Typescript interfaces. The goal is to have one truth point for the models and extend that data when more data is needed. The starting point is the `*.types.graphql` files. They contain the GraphQL schema and have properties that every model, at a minimum, should have. `@nestjs/graphql` creates a `graphql.classes.ts` file to match the GraphQL schema when the program is started. These classes are used as the base class for the Mongoose Schema and in place of DTOs. Of note, the IMutation and IQuery classes created by `@nestjs/graphql` are not used for the resolvers, though it would be nice if they were. It doesn't appear possible without modification of the `grahql.classes.ts` file because all the methods aren't implemented in the same resolver.
+It is challenging not to repeat the structure of the models in the GraphQL schema, Mongo schema, and Typescript interfaces. The goal is to have one truth point for the models and extend that data when more data is needed.
+
+With NestJS 6.0.0 a _code first_ approach was introduced. This project uses the _schema first_ approach to be language agnostic. The starting point for models is the `*.types.graphql` files. They contain the GraphQL schema and have properties that every model, at a minimum, should have.
+
+`@nestjs/graphql` creates a `graphql.classes.ts` file to match the GraphQL schema when the program is started. These classes are used as the base class for the Mongoose Schema and in place of DTOs. Of note, the IMutation and IQuery classes created by `@nestjs/graphql` are not used for the resolver class, though it would be nice if they were. It doesn't appear possible without modification of the `grahql.classes.ts` file because all the methods aren't implemented in the same resolver.
 
 Username is the primary field to identify a user in a request. Initially username or email were accepted, but for simplicity the schema moved to only username. Both username and email fields are in the JWT data, and because they are both unique, either could be used.
 
