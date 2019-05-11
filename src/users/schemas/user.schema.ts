@@ -1,5 +1,6 @@
 import { Schema, model, Model, Document, Query, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { User } from '../../graphql.classes';
 
 export interface UserDocument extends User, Document {
@@ -158,6 +159,7 @@ UserSchema.methods.checkPassword = function(
       if (error) {
         reject(error);
       }
+
       resolve(isMatch);
     });
   });
