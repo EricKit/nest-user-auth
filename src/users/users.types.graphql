@@ -2,17 +2,17 @@ scalar Date
 scalar MongoObjectId
 
 type Query {
-  users: [User!]
-  user(username: String, email: String): User
+  users: [User!]!
+  user(username: String, email: String): User!
   forgotPassword(email: String): Boolean
 }
 
 type Mutation {
-  createUser(createUserInput: CreateUserInput): User
-  updateUser(username: String!, fieldsToUpdate: UpdateUserInput!): User
-  addAdminPermission(username: String!): User
-  removeAdminPermission(username: String!): User
-  resetPassword(username: String!, code: String!, password: String!): User
+  createUser(createUserInput: CreateUserInput): User!
+  updateUser(username: String!, fieldsToUpdate: UpdateUserInput!): User!
+  addAdminPermission(username: String!): User!
+  removeAdminPermission(username: String!): User!
+  resetPassword(username: String!, code: String!, password: String!): User!
 }
 
 type User {
@@ -21,6 +21,7 @@ type User {
   permissions: [String!]!
   createdAt: Date!
   updatedAt: Date!
+  lastSeenAt: Date!
   enabled: Boolean!
   _id: MongoObjectId!
 }

@@ -1,6 +1,5 @@
 import { Schema, model, Model, Document, Query, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
 import { User } from '../../graphql.classes';
 
 export interface UserDocument extends User, Document {
@@ -71,6 +70,10 @@ export const UserSchema: Schema = new Schema(
     enabled: {
       type: Boolean,
       default: true,
+    },
+    lastSeenAt: {
+      type: Date,
+      default: Date.now,
     },
   },
   {

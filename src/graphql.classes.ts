@@ -51,8 +51,6 @@ export abstract class IQuery {
     abstract user(username?: string, email?: string): User | Promise<User>;
 
     abstract forgotPassword(email?: string): boolean | Promise<boolean>;
-
-    abstract temp__(): boolean | Promise<boolean>;
 }
 
 export class User {
@@ -61,6 +59,7 @@ export class User {
     permissions: string[];
     createdAt: Date;
     updatedAt: Date;
+    lastSeenAt: Date;
     enabled: boolean;
     _id: MongoObjectId;
 }

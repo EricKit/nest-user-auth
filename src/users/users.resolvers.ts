@@ -14,7 +14,7 @@ export class UserResolver {
 
   @Query('users')
   @UseGuards(JwtAuthGuard, AdminGuard)
-  async users() {
+  async users(): Promise<UserDocument[]> {
     return await this.usersService.getAllUsers();
   }
 
