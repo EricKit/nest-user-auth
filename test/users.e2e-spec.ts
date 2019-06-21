@@ -8,6 +8,9 @@ import { AuthService } from '../src/auth/auth.service';
 import { LoginResult } from '../src/graphql.classes';
 import { ConfigService } from '../src/config/config.service';
 import { JwtService } from '@nestjs/jwt';
+import { UsersModule } from '../src/users/users.module';
+import { AuthModule } from '../src/auth/auth.module';
+import { ConfigModule } from '../src/config/config.module';
 
 describe('Users (e2e)', () => {
   let app: INestApplication;
@@ -23,17 +26,10 @@ describe('Users (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-      providers: [
-        UsersService,
-        AuthService,
-        ConfigService,
-        {
-          provide: ConfigService,
-          useValue: new ConfigService(`${process.env.NODE_ENV}.env`),
-        },
-      ],
+      imports: [AppModule, UsersModule, AuthModule, ConfigModule],
+      providers: [],
     }).compile();
+
     app = moduleFixture.createNestApplication();
     await app.init();
 

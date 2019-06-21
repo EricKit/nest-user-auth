@@ -27,6 +27,7 @@ import { ConfigModule } from '../config/config.module';
       inject: [ConfigService],
     }),
     UsersModule,
+    ConfigModule,
   ],
   controllers: [],
   providers: [AuthService, AuthResolver, JwtStrategy],

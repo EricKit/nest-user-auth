@@ -4,23 +4,16 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './schemas/user.schema';
 import { UserResolver } from './users.resolvers';
 import { DateScalar } from '../scalars/date.scalar';
-import { ConfigService } from '../config/config.service';
+import { ConfigModule } from '../config/config.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     UsersModule,
+    ConfigModule,
   ],
   exports: [UsersService],
   controllers: [],
-  providers: [
-    UsersService,
-    UserResolver,
-    DateScalar,
-    {
-      provide: ConfigService,
-      useValue: new ConfigService(`${process.env.NODE_ENV}.env`),
-    },
-  ],
+  providers: [UsersService, UserResolver, DateScalar],
 })
 export class UsersModule {}
