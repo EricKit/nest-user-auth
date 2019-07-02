@@ -112,6 +112,40 @@ The `AdminGuard` only allows admins.
 
 The `JwtAuthGuard` ensures that there is a valid JWT and that the user associated with the JWT exists in the database.
 
+## Relationships
+
+To add a relationship with the NestJS Schema first approach and Mongoose there are a few caveats. Take for example a one to many relationship where a Purchase can be made by one user, but a user can have many purchases. Likely, the Purchase GraphQL schema will look like this:
+
+```graphql
+type Purchase {
+  product: String!
+  owner: User!
+  ...
+}
+```
+
+This allows a user to make a query that contains both the purchase and its user's subfield (see below for security concerns). The Schema first approach will create a class file that contains `Purchase` class with the `owner` property of type `User`. But in the MongoDB database a user is actually just a Mongo ID. It's not possible to extend the above `Purchase` class and add the `owner` property as a union of a `MongoId` and `User`. For the MongoDB Schema, a different field for the foreign key must be created. For example:
+
+```typescript
+export interface PurchaseDocument extends Purchase, Document {
+// Declaring properties that are not in the GraphQL Schema for a Purchase
+  ownerId: Types.ObjectId;
+}
+
+export const LocationSchema: Schema = new Schema(
+  {
+    ...,
+    ownerId: {
+      type: Types.ObjectId,
+      ref: 'User',
+    },
+  })
+```
+
+Now the `ownerId` property can reference the `ObjectId` and the `owner` property can reference the `User` class. This stops the mongoose populate method from being used effectively, but I don't know of a better way to keep this schema first approach. Please post an issue if you know a better way.
+
+Keep in mind, the above example would create a security issue as every field of a `User` would be accessable to anyone querying a Location. To fix this, add a new type to the GraphQL schema such as `SanitizedUser` which contains only public fields. Then, the `Purchase.owner` property would be changed from `User` to `SanitizedUser`.
+
 ## Testing
 
 To test, ensure that the environment is different than the `development` environment. When the end to end tests run, they will delete all users in the database specified in the environment file on start. Currently running `npm run test:e2e` will set `NODE_ENV` to `test` based on `package.json` scripts. This will default to the `test.env` file.

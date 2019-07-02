@@ -1,5 +1,4 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { User } from '../../graphql.classes';
 import { UsersService } from '../../users/users.service';
