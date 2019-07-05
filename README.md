@@ -135,7 +135,7 @@ type Purchase {
 }
 ```
 
-This allows a user to make a query that contains both the purchase and its customer's subfields (see below for security concerns). The Schema first approach will create a class file that contains `Purchase` class with the `customer` property of type `User`. But in the MongoDB database a user is actually just a Mongo ID. It's not possible to extend the above `Purchase` class and add the `customer` property as a union of a `MongoId` and `User`. For the MongoDB Schema, a different field for the foreign key must be created. For example:
+This allows a user to make a query that contains both the purchase and its customer's subfields (see below for security concerns). The Schema first approach will create a file that contains the `Purchase` class with the `customer` property of type `User`. But in the MongoDB database a user is actually just a Mongo ID. It would be nice to have the `customer` property be a union of a `MongoId` and `User`. This would allow Mongoose's `populate` to be used to replace the ID with an actual User. However, a property cannot be made more generic when you extend a class. For the MongoDB Schema, a different field for the foreign key must be created. For example:
 
 ```typescript
 export interface PurchaseDocument extends Purchase, Document {
@@ -153,7 +153,7 @@ export const PurchaseDocument: Schema = new Schema(
   })
 ```
 
-The `customerId` property of the `PurchaseDocument` interface can reference the `ObjectId` and the `customer` property of the `Purchase` class can reference the `User` class. Purchase has only an `customer` property, while the `PurchaseDocument` has both `customer` and `customerId` properties. This makes sense because a user should never care about how the relationship is built, but it also stops the mongoose populate method from being used effectively. Below is an example of how the customer's information, including ID, can be queried.
+The `customerId` property of the `PurchaseDocument` interface can reference the `ObjectId` and the `customer` property of the `Purchase` class can reference the `User` class. Purchase has only a `customer` property, while the `PurchaseDocument` has both the `customer` and `customerId` properties. This makes sense because a user should never care about how the relationship is built. Below is an example of how the customer's information, including ID, can be queried.
 
 ```Typescript
 @ResolveProperty()
