@@ -112,6 +112,17 @@ The `AdminGuard` only allows admins.
 
 The `JwtAuthGuard` ensures that there is a valid JWT and that the user associated with the JWT exists in the database.
 
+The User's Document is accessable in the resolver via `@Context('req')` should it be needed. For example, a user creates a Purchase and that user's ID needs to be attached to the purchase. An example mutation is shown below.
+
+```Typescript
+  // This is an example of how to get access to the validated user making the request
+  @UseGuards(JwtAuthGuard)
+  @Mutation('userInResolver')
+  userInResolver(@Context('req') request: any) {
+    const user: UserDocument = request.user;
+  }
+```
+
 ## Relationships
 
 To add a relationship with the NestJS Schema first approach and Mongoose there are a few caveats. Take for example a one to many relationship where a Purchase can be made by one user, but a user can have many purchases. Likely, the Purchase GraphQL schema will look like this:
@@ -132,7 +143,7 @@ export interface PurchaseDocument extends Purchase, Document {
   ownerId: Types.ObjectId;
 }
 
-export const LocationSchema: Schema = new Schema(
+export const PurchaseDocument: Schema = new Schema(
   {
     ...,
     ownerId: {
@@ -142,7 +153,26 @@ export const LocationSchema: Schema = new Schema(
   })
 ```
 
-Now the `ownerId` property can reference the `ObjectId` and the `owner` property can reference the `User` class. This stops the mongoose populate method from being used effectively, but I don't know of a better way to keep this schema first approach. Please post an issue if you know a better way.
+The `ownerId` property of the `PurchaseDocument` interface can reference the `ObjectId` and the `owner` property of the `Purchase` class can reference the `User` class. Purchase has only an `owner` property, while the `PurchaseDocument` has both `owner` and `ownerId` properties. This makes sense because a user should never care about how the relationship is built, but it also stops the mongoose populate method from being used effectively. Below is an example of how the owner's information, including ID, can be queried.
+
+```Typescript
+@ResolveProperty()
+async owner(@Parent() purchase: PurchaseDocument): Promise<User> {
+  const userDocument = await this.usersService.findOneById(comment.ownerId);
+  return userDocument;
+}
+```
+
+```Graphql
+query purchase {
+  purchase(id: "35") {
+    price
+    owner {
+      username
+    }
+  }
+}
+```
 
 Keep in mind, the above example would create a security issue as every field of a `User` would be accessable to anyone querying a Location. To fix this, add a new type to the GraphQL schema such as `SanitizedUser` which contains only public fields. Then, the `Purchase.owner` property would be changed from `User` to `SanitizedUser`.
 

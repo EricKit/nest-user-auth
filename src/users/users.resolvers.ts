@@ -106,11 +106,4 @@ export class UserResolver {
     if (!user) throw new UserInputError('The user does not exist');
     return user;
   }
-
-  // This is an example of how to get access to the validated user making the request
-  @UseGuards(JwtAuthGuard)
-  @Mutation('userInResolver')
-  userInResolver(@Context('req') request: any) {
-    const user: UserDocument = request.user;
-  }
 }
