@@ -130,35 +130,35 @@ To add a relationship with the NestJS Schema first approach and Mongoose there a
 ```graphql
 type Purchase {
   product: String!
-  owner: User!
+  customer: User!
   ...
 }
 ```
 
-This allows a user to make a query that contains both the purchase and its user's subfields (see below for security concerns). The Schema first approach will create a class file that contains `Purchase` class with the `owner` property of type `User`. But in the MongoDB database a user is actually just a Mongo ID. It's not possible to extend the above `Purchase` class and add the `owner` property as a union of a `MongoId` and `User`. For the MongoDB Schema, a different field for the foreign key must be created. For example:
+This allows a user to make a query that contains both the purchase and its user's subfields (see below for security concerns). The Schema first approach will create a class file that contains `Purchase` class with the `customer` property of type `User`. But in the MongoDB database a user is actually just a Mongo ID. It's not possible to extend the above `Purchase` class and add the `customer` property as a union of a `MongoId` and `User`. For the MongoDB Schema, a different field for the foreign key must be created. For example:
 
 ```typescript
 export interface PurchaseDocument extends Purchase, Document {
 // Declaring properties that are not in the GraphQL Schema for a Purchase
-  ownerId: Types.ObjectId;
+  customerId: Types.ObjectId;
 }
 
 export const PurchaseDocument: Schema = new Schema(
   {
     ...,
-    ownerId: {
+    customerId: {
       type: Types.ObjectId,
       ref: 'User',
     },
   })
 ```
 
-The `ownerId` property of the `PurchaseDocument` interface can reference the `ObjectId` and the `owner` property of the `Purchase` class can reference the `User` class. Purchase has only an `owner` property, while the `PurchaseDocument` has both `owner` and `ownerId` properties. This makes sense because a user should never care about how the relationship is built, but it also stops the mongoose populate method from being used effectively. Below is an example of how the owner's information, including ID, can be queried.
+The `customerId` property of the `PurchaseDocument` interface can reference the `ObjectId` and the `customer` property of the `Purchase` class can reference the `User` class. Purchase has only an `customer` property, while the `PurchaseDocument` has both `customer` and `customerId` properties. This makes sense because a user should never care about how the relationship is built, but it also stops the mongoose populate method from being used effectively. Below is an example of how the customer's information, including ID, can be queried.
 
 ```Typescript
 @ResolveProperty()
-async owner(@Parent() purchase: PurchaseDocument): Promise<User> {
-  const userDocument = await this.usersService.findOneById(comment.ownerId);
+async customer(@Parent() purchase: PurchaseDocument): Promise<User> {
+  const userDocument = await this.usersService.findOneById(comment.customerId);
   return userDocument;
 }
 ```
@@ -167,14 +167,14 @@ async owner(@Parent() purchase: PurchaseDocument): Promise<User> {
 query purchase {
   purchase(id: "35") {
     price
-    owner {
+    customer {
       username
     }
   }
 }
 ```
 
-Keep in mind, the above example would create a security issue as every field of a `User` would be accessable to anyone querying a Location. To fix this, add a new type to the GraphQL schema such as `SanitizedUser` which contains only public fields. Then, the `Purchase.owner` property would be changed from `User` to `SanitizedUser`.
+Keep in mind, the above example would create a security issue as every field of a `User` would be accessable to anyone querying a Location. To fix this, add a new type to the GraphQL schema such as `SanitizedUser` which contains only public fields. Then, the `Purchase.customer` property would be changed from `User` to `SanitizedUser`.
 
 ## Testing
 
