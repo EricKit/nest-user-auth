@@ -11,7 +11,7 @@ export class ObjectIdScalar {
   }
 
   serialize(value: Types.ObjectId) {
-    return value.toHexString; // value sent to the client
+    return value.toHexString(); // value sent to the client
   }
 
   parseLiteral(ast: ASTNode) {
