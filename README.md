@@ -135,7 +135,7 @@ type Purchase {
 }
 ```
 
-This allows a user to make a query that contains both the purchase and its customer's subfields (see below for security concerns). The Schema first approach will create a file that contains the `Purchase` class with the `customer` property of type `User`. But in the MongoDB database a user is actually just a Mongo ID. It would be nice to have the `customer` property be a union of a `MongoId` and `User`. This would allow Mongoose's `populate` to be used to replace the ID with an actual User. However, a property cannot be made more generic when you extend a class. For the MongoDB Schema, a different field for the foreign key must be created. For example:
+This allows a user to make a query that contains both the purchase and its customer's subfields (see below for security concerns). The Schema first approach will create a file that contains the `Purchase` class with the `customer` property of type `User`. But in the MongoDB database a user is actually just a Mongo ID. It would be nice to have the `customer` property be a union of a `MongoId` and `User`. This would allow Mongoose's `populate` method to be used to replace the ID with an actual User. However, a property cannot be made more generic when extending a class. For the MongoDB Schema and Document, a different field for the foreign key must be created. For example:
 
 ```typescript
 export interface PurchaseDocument extends Purchase, Document {
