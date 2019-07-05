@@ -135,7 +135,7 @@ type Purchase {
 }
 ```
 
-This allows a user to make a query that contains both the purchase and its user's subfields (see below for security concerns). The Schema first approach will create a class file that contains `Purchase` class with the `customer` property of type `User`. But in the MongoDB database a user is actually just a Mongo ID. It's not possible to extend the above `Purchase` class and add the `customer` property as a union of a `MongoId` and `User`. For the MongoDB Schema, a different field for the foreign key must be created. For example:
+This allows a user to make a query that contains both the purchase and its customer's subfields (see below for security concerns). The Schema first approach will create a class file that contains `Purchase` class with the `customer` property of type `User`. But in the MongoDB database a user is actually just a Mongo ID. It's not possible to extend the above `Purchase` class and add the `customer` property as a union of a `MongoId` and `User`. For the MongoDB Schema, a different field for the foreign key must be created. For example:
 
 ```typescript
 export interface PurchaseDocument extends Purchase, Document {
