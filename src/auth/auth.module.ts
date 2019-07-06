@@ -15,7 +15,7 @@ import { ConfigModule } from '../config/config.module';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
         const options: JwtModuleOptions = {
-          secretOrPrivateKey: configService.jwtSecret,
+          secret: configService.jwtSecret,
         };
         if (configService.jwtExpiresIn) {
           options.signOptions = {

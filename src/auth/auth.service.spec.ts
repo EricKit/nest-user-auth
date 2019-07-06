@@ -16,7 +16,7 @@ describe('AuthService', () => {
         JwtModule.registerAsync({
           imports: [ConfigModule],
           useFactory: async (configService: ConfigService) => ({
-            secretOrPrivateKey: configService.jwtSecret,
+            secret: configService.jwtSecret,
             signOptions: {
               expiresIn: configService.jwtExpiresIn,
             },
