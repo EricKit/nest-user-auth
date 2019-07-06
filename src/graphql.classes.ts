@@ -44,7 +44,7 @@ export abstract class IMutation {
 export abstract class IQuery {
     abstract login(user: LoginUserInput): LoginResult | Promise<LoginResult>;
 
-    abstract refreshToken(username: string): string | Promise<string>;
+    abstract refreshToken(): string | Promise<string>;
 
     abstract users(): User[] | Promise<User[]>;
 

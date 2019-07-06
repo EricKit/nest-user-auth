@@ -1,4 +1,4 @@
-import { Resolver, Args, Query } from '@nestjs/graphql';
+import { Resolver, Args, Query, Context } from '@nestjs/graphql';
 import { LoginUserInput, LoginResult } from '../graphql.classes';
 import { AuthService } from './auth.service';
 import { AuthenticationError } from 'apollo-server-core';
@@ -6,6 +6,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { UsernameEmailGuard } from './guards/username-email.guard';
 import { UsersService } from '../users/users.service';
+import { UserDocument } from '../users/schemas/user.schema';
 
 @Resolver('Auth')
 export class AuthResolver {
@@ -25,9 +26,9 @@ export class AuthResolver {
 
   // There is no username guard here because if the person has the token, they can be any user
   @Query('refreshToken')
-  @UseGuards(JwtAuthGuard, UsernameEmailGuard)
-  async refreshToken(@Args('username') username: string): Promise<string> {
-    const user = await this.usersService.findOneByUsername(username);
+  @UseGuards(JwtAuthGuard)
+  async refreshToken(@Context('req') request: any): Promise<string> {
+    const user: UserDocument = request.user;
     if (!user)
       throw new AuthenticationError(
         'Could not log-in with the provided credentials',

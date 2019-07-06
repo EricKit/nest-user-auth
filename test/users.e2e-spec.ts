@@ -203,9 +203,9 @@ describe('Users (e2e)', () => {
   });
 
   describe('refresh token', () => {
-    it('works with username', async () => {
+    it('works', async () => {
       const data = {
-        query: `{refreshToken(username: "uSer1")}`,
+        query: `{refreshToken}`,
       };
 
       await new Promise(resolve => {
@@ -231,41 +231,9 @@ describe('Users (e2e)', () => {
         });
     });
 
-    it('fails for admin on another user', () => {
-      const data = {
-        query: `{refreshToken(username: "user1")}`,
-      };
-      return request(app.getHttpServer())
-        .post('/graphql')
-        .set('Authorization', `Bearer ${adminLogin.token}`)
-        .send(data)
-        .expect(200)
-        .expect(response => {
-          expect(response.body.errors[0].extensions.code).toEqual(
-            'UNAUTHENTICATED',
-          );
-        });
-    });
-
-    it('fails with wrong username', () => {
-      const data = {
-        query: `{refreshToken(username: "uSer10")}`,
-      };
-      return request(app.getHttpServer())
-        .post('/graphql')
-        .set('Authorization', `Bearer ${user1Login.token}`)
-        .send(data)
-        .expect(200)
-        .expect(response => {
-          expect(response.body.errors[0].extensions.code).toEqual(
-            'UNAUTHENTICATED',
-          );
-        });
-    });
-
     it('fails for disabled user', () => {
       const data = {
-        query: `{refreshToken(username: "disabledUser")}`,
+        query: `{refreshToken}`,
       };
       return request(app.getHttpServer())
         .post('/graphql')
@@ -281,7 +249,7 @@ describe('Users (e2e)', () => {
 
     it('fails for disabled admin', () => {
       const data = {
-        query: `{refreshToken(username: "disabledAdmin")}`,
+        query: `{refreshToken}`,
       };
       return request(app.getHttpServer())
         .post('/graphql')
@@ -295,25 +263,9 @@ describe('Users (e2e)', () => {
         });
     });
 
-    it('fails with wrong token', () => {
+    it('fails with no token', () => {
       const data = {
-        query: `{refreshToken(username: "user2")}`,
-      };
-      return request(app.getHttpServer())
-        .post('/graphql')
-        .set('Authorization', `Bearer ${user1Login.token}`)
-        .send(data)
-        .expect(200)
-        .expect(response => {
-          expect(response.body.errors[0].extensions.code).toEqual(
-            'UNAUTHENTICATED',
-          );
-        });
-    });
-
-    it('fails with wrong no token', () => {
-      const data = {
-        query: `{refreshToken(username: "user1")}`,
+        query: `{refreshToken}`,
       };
       return request(app.getHttpServer())
         .post('/graphql')
@@ -328,7 +280,7 @@ describe('Users (e2e)', () => {
 
     it('fails with mispelled token', () => {
       const data = {
-        query: `{refreshToken(username: "user1")}`,
+        query: `{refreshToken}`,
       };
       return request(app.getHttpServer())
         .post('/graphql')
@@ -456,7 +408,7 @@ describe('Users (e2e)', () => {
         });
     });
 
-    it('fails with wrong no token', () => {
+    it('fails with no token', () => {
       const data = {
         query: `{user(username:"user10"){username}}`,
       };

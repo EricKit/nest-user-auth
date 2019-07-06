@@ -250,7 +250,7 @@ query user {
 
 ```graphql
 query refreshToken {
-  refreshToken(username: "username")
+  refreshToken
 }
 ```
 
