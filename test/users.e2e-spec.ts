@@ -876,10 +876,6 @@ describe('Users (e2e)', () => {
             fieldsToUpdate: {
             username: "newUsernameByAdmin",
             email: "newUserByAdmin@email.com",
-            password: {
-              oldPassword: "password",
-              newPassword: "newPassword",
-            }
           }) {username, email}}`,
       };
 
@@ -894,12 +890,39 @@ describe('Users (e2e)', () => {
             email: 'newUserByAdmin@email.com',
           });
         });
+    });
 
-      const login = await authService.validateUserByPassword({
-        username: 'newUsernameByAdmin',
-        password: 'newPassword',
+    it('fails with admin changing another user\'s password', async () => {
+      await usersService.create({
+        username: 'userToUpdateByAdmin2',
+        email: 'userToUpdatebyAdmin2@email.com',
+        password: 'password',
       });
-      expect(login).toBeTruthy();
+
+      const data = {
+        query: `mutation {
+          updateUser(
+            username: "userToUpdateByAdmin2",
+            fieldsToUpdate: {
+            username: "newUsernameByAdmin2",
+            email: "newUserByAdmin2@email.com",
+            password: {
+              oldPassword: "password",
+              newPassword: "newPassword",
+            }
+          }) {username, email}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${adminLogin.token!}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.errors[0].extensions.code).toEqual(
+            'UNAUTHENTICATED',
+          );
+        });
     });
 
     it('updates other fields with changed username already in use', async () => {

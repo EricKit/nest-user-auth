@@ -7,6 +7,7 @@ import { UsernameEmailAdminGuard } from '../auth/guards/username-email-admin.gua
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { UserInputError, ValidationError } from 'apollo-server-core';
 import { UserDocument } from './schemas/user.schema';
+import { AdminAllowedArgs } from '../decorators/admin-allowed-args';
 
 @Resolver('User')
 export class UserResolver {
@@ -74,6 +75,12 @@ export class UserResolver {
   }
 
   @Mutation('updateUser')
+  @AdminAllowedArgs(
+    'username',
+    'fieldsToUpdate.username',
+    'fieldsToUpdate.email',
+    'fieldsToUpdate.enabled',
+  )
   @UseGuards(JwtAuthGuard, UsernameEmailAdminGuard)
   async updateUser(
     @Args('username') username: string,

@@ -106,7 +106,16 @@ Users can modify or view their own data. Admins can do anything except refresh a
 
 The `UsernameEmailGuard` compares the user's email or username with the same field in a query. If any query or mutation in the resolver has `doAnythingWithUser(username: string)` or `doAnythingWithUser(email: string)` and that email / username matches the user which is requesting the action, it will be approved. Username and email are unique, and the user has already been verified via JWT. **If there is not a username or email in the request, it will pass.** This is because the resolvers will set the action on the user making the request. For example, on updateUser if no username is specified, the modification is on the user making the request.
 
-The `UsernameEmailAdminGuard` is the same as the `UsernameEmailGuard` except it also allows admins.
+The `UsernameEmailAdminGuard` is the same as the `UsernameEmailGuard` except it also allows admins. Admins should not be allowed to change everything. For example, an admin should not be allowed to set another user's password. This would allow the admin to impersonate that user. The `@AdminAllowedArgs` decorator has been added for this reason to this guard. If this decorator is used, only the arguments specified are allowed. Placing the below decorator above the `updateUser` resolver will not allow an admin to specify the `fieldsToUpdate.password` argument.
+
+```Typescript
+@AdminAllowedArgs(
+    'username',
+    'fieldsToUpdate.username',
+    'fieldsToUpdate.email',
+    'fieldsToUpdate.enabled',
+  )
+```
 
 The `AdminGuard` only allows admins.
 
