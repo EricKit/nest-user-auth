@@ -17,10 +17,15 @@ export class LoginUserInput {
     password: string;
 }
 
+export class UpdatePasswordInput {
+    oldPassword: string;
+    newPassword: string;
+}
+
 export class UpdateUserInput {
     username?: string;
     email?: string;
-    password?: string;
+    password?: UpdatePasswordInput;
     enabled?: boolean;
 }
 
@@ -32,7 +37,7 @@ export class LoginResult {
 export abstract class IMutation {
     abstract createUser(createUserInput?: CreateUserInput): User | Promise<User>;
 
-    abstract updateUser(username: string, fieldsToUpdate: UpdateUserInput): User | Promise<User>;
+    abstract updateUser(fieldsToUpdate: UpdateUserInput, username?: string): User | Promise<User>;
 
     abstract addAdminPermission(username: string): User | Promise<User>;
 

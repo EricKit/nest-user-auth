@@ -9,7 +9,7 @@ type Query {
 
 type Mutation {
   createUser(createUserInput: CreateUserInput): User!
-  updateUser(username: String!, fieldsToUpdate: UpdateUserInput!): User!
+  updateUser(fieldsToUpdate: UpdateUserInput!, username: String): User!
   addAdminPermission(username: String!): User!
   removeAdminPermission(username: String!): User!
   resetPassword(username: String!, code: String!, password: String!): User!
@@ -35,6 +35,11 @@ input CreateUserInput {
 input UpdateUserInput {
   username: String
   email: String
-  password: String
+  password: UpdatePasswordInput
   enabled: Boolean
+}
+
+input UpdatePasswordInput {
+  oldPassword: String!
+  newPassword: String!
 }

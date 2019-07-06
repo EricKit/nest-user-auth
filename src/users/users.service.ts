@@ -7,12 +7,14 @@ import { randomBytes } from 'crypto';
 import { createTransport, SendMailOptions } from 'nodemailer';
 import { ConfigService } from '../config/config.service';
 import { MongoError } from 'mongodb';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel('User') private readonly userModel: Model<UserDocument>,
     private configService: ConfigService,
+    private authService: AuthService,
   ) {}
 
   /**
@@ -97,11 +99,22 @@ export class UsersService {
       if (duplicateUser || !emailValid) fieldsToUpdate.email = undefined;
     }
 
-    const fields = {};
+    const fields: any = {};
+
+    if (fieldsToUpdate.password) {
+      if (
+        await this.authService.validateUserByPassword({
+          username,
+          password: fieldsToUpdate.password.oldPassword,
+        })
+      ) {
+        fields.password = fieldsToUpdate.password.newPassword;
+      }
+    }
 
     // Remove undefined keys for update
     for (const key in fieldsToUpdate) {
-      if (typeof fieldsToUpdate[key] !== 'undefined') {
+      if (typeof fieldsToUpdate[key] !== 'undefined' && key !== 'password') {
         fields[key] = fieldsToUpdate[key];
       }
     }

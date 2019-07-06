@@ -78,8 +78,10 @@ export class UserResolver {
   async updateUser(
     @Args('username') username: string,
     @Args('fieldsToUpdate') fieldsToUpdate: UpdateUserInput,
+    @Context('req') request: any,
   ): Promise<User> {
     let user: UserDocument | undefined;
+    if (!username && request.user) username = request.user.username;
     try {
       user = await this.usersService.update(username, fieldsToUpdate);
     } catch (error) {

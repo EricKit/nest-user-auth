@@ -104,7 +104,7 @@ Admin must be set manually as a string in permissions for the first user (add `a
 
 Users can modify or view their own data. Admins can do anything except refresh another user's token, which would allow the admin to impersonate that user.
 
-The `UsernameEmailGuard` compares the user's email or username with the same field in a query. If any query or mutation in the resolver has `doAnythingWithUser(username: string)` or `doAnythingWithUser(email: string)` and that email / username matches the user which is requesting the action, it will be approved. Username and email are unique, and the user has already been verified via JWT.
+The `UsernameEmailGuard` compares the user's email or username with the same field in a query. If any query or mutation in the resolver has `doAnythingWithUser(username: string)` or `doAnythingWithUser(email: string)` and that email / username matches the user which is requesting the action, it will be approved. Username and email are unique, and the user has already been verified via JWT. **If there is not a username or email in the request, it will pass.** This is because the resolvers will set the action on the user making the request. For example, on updateUser if no username is specified, the modification is on the user making the request.
 
 The `UsernameEmailAdminGuard` is the same as the `UsernameEmailGuard` except it also allows admins.
 
@@ -269,7 +269,6 @@ mutation updateUser($updateUser: UpdateUserInput!) {
 {
   "updateUser": {
     "username": "newUserName",
-    "password": "newPassword",
     "email": "newEmail@test.com",
     "enabled": false
   }

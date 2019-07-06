@@ -4,16 +4,11 @@ import { AuthService } from './auth.service';
 import { AuthenticationError } from 'apollo-server-core';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UseGuards } from '@nestjs/common';
-import { UsernameEmailGuard } from './guards/username-email.guard';
-import { UsersService } from '../users/users.service';
 import { UserDocument } from '../users/schemas/user.schema';
 
 @Resolver('Auth')
 export class AuthResolver {
-  constructor(
-    private authService: AuthService,
-    private usersService: UsersService,
-  ) {}
+  constructor(private authService: AuthService) {}
 
   @Query('login')
   async login(@Args('user') user: LoginUserInput): Promise<LoginResult> {

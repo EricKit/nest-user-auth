@@ -794,7 +794,10 @@ describe('Users (e2e)', () => {
             fieldsToUpdate: {
             username: "newUsername1",
             email: "newUser1@email.com",
-            password: "newPassword",
+            password: {
+              oldPassword: "password",
+              newPassword: "newPassword",
+            }
             enabled: true
           }) {username, email, enabled}}`,
       };
@@ -873,7 +876,10 @@ describe('Users (e2e)', () => {
             fieldsToUpdate: {
             username: "newUsernameByAdmin",
             email: "newUserByAdmin@email.com",
-            password: "newPassword"
+            password: {
+              oldPassword: "password",
+              newPassword: "newPassword",
+            }
           }) {username, email}}`,
       };
 
@@ -915,7 +921,10 @@ describe('Users (e2e)', () => {
             fieldsToUpdate: {
             username: "user1",
             email:"newUser2@email.com",
-            password:"newPassword"
+            password: {
+              oldPassword: "password",
+              newPassword: "newPassword",
+            }
           }) {username, email}}`,
       };
 
@@ -958,7 +967,10 @@ describe('Users (e2e)', () => {
             fieldsToUpdate: {
             username: "newUsername3",
             email:"user1@email.com",
-            password:"newPassword"
+            password: {
+              oldPassword: "password",
+              newPassword: "newPassword",
+            }
           }) {username, email}}`,
       };
 
@@ -1001,7 +1013,10 @@ describe('Users (e2e)', () => {
             fieldsToUpdate: {
             username: "newUsername5",
             email:"invalidEmail",
-            password:"newPassword"
+            password: {
+              oldPassword: "password",
+              newPassword: "newPassword",
+            }
           }) {username, email}}`,
       };
 
@@ -1051,6 +1066,60 @@ describe('Users (e2e)', () => {
           password: 'password1',
         }),
       ).toBeTruthy();
+    });
+
+    it(`update other fields with bad old password - also verifies updates requesting user's info
+    with no username set`, async () => {
+      await usersService.create({
+        username: 'userToUpdate55',
+        email: 'userToUpdate55@email.com',
+        password: 'password',
+      });
+
+      const result = await authService.validateUserByPassword({
+        username: 'userToUpdate55',
+        password: 'password',
+      });
+      const token = result!.token;
+
+      const data = {
+        query: `mutation {
+          updateUser(
+            fieldsToUpdate: {
+            username: "newUsername55",
+            email: "newUser55@email.com",
+            password: {
+              oldPassword: "notthepassword",
+              newPassword: "newPassword",
+            }
+            enabled: true
+          }) {username, email, enabled}}`,
+      };
+
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${token!}`)
+        .send(data)
+        .expect(200)
+        .expect(response => {
+          expect(response.body.data.updateUser).toMatchObject({
+            username: 'newUsername55',
+            email: 'newUser55@email.com',
+            enabled: true,
+          });
+        });
+
+      let login = await authService.validateUserByPassword({
+        username: 'newUsername55',
+        password: 'newPassword',
+      });
+      expect(login).toBeFalsy();
+
+      login = await authService.validateUserByPassword({
+        username: 'newUsername55',
+        password: 'password',
+      });
+      expect(login).toBeTruthy();
     });
 
     it('fails to update with wrong username', async () => {
