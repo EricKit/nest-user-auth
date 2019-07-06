@@ -23,6 +23,8 @@ export class UsernameEmailAdminGuard implements CanActivate {
           args.username.toLowerCase() === user.username.toLowerCase();
       } else if (args.email && typeof args.email === 'string') {
         shouldActivate = args.email.toLowerCase() === user.email.toLowerCase();
+      } else if (!args.username && !args.email) {
+        shouldActivate = true;
       }
     }
     if (!shouldActivate) {
