@@ -60,7 +60,7 @@ export class AuthService {
         user: userToAttempt!,
         token,
       };
-      userToAttempt.lastSeenAt = Date.now();
+      userToAttempt.lastSeenAt = new Date();
       userToAttempt.save();
       return result;
     }
@@ -83,7 +83,7 @@ export class AuthService {
 
     // Ensure the user exists and their account isn't disabled
     if (user && user.enabled) {
-      user.lastSeenAt = Date.now();
+      user.lastSeenAt = new Date();
       user.save();
       return user;
     }
