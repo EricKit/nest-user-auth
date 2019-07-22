@@ -69,5 +69,4 @@ export class User {
     _id: MongoObjectId;
 }
 
-export type Date = any;
 export type MongoObjectId = any;
