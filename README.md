@@ -38,6 +38,10 @@ EMAIL_FROM=from@somedomain.com
 
 #### Optional Parameters
 
+`MONGO_AUTH_ENABLED` tells if your database requires a username and password. If so, the user must exist on the database specified in the MONGO_URI. If enabled, `MONGO_USER` and `MONGO_PASSWORD` are required.
+
+`MONGO_USER`, `MONGO_PASSWORD` the user and password for authentication. Recommend a role with readWrite.
+
 `JWT_EXPIRES_IN` Seconds until token expires. If not set, there will be no expiration.
 
 `EMAIL_ENABLED` If email services should be used, `EMAIL_*` fields are required if enabled.
