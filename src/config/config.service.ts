@@ -7,16 +7,6 @@ export interface EnvConfig {
   [key: string]: string;
 }
 
-type options =
-  | 'MONGO_URI'
-  | 'JWT_SECRET'
-  | 'JWT_EXPIRES_IN'
-  | 'EMAIL_SERVICE'
-  | 'EMAIL_USERNAME'
-  | 'EMAIL_PASSWORD'
-  | 'EMAIL_FROM'
-  | 'TEST_EMAIL_TO';
-
 @Injectable()
 export class ConfigService {
   private readonly envConfig: EnvConfig;
@@ -36,6 +26,16 @@ export class ConfigService {
   private validateInput(envConfig: EnvConfig): EnvConfig {
     const envVarsSchema: Joi.ObjectSchema = Joi.object({
       MONGO_URI: Joi.string().required(),
+      MONGO_AUTH_ENABLED: Joi.boolean().default(false),
+      MONGO_USER: Joi.string().when('MONGO_AUTH_ENABLED', {
+        is: true,
+        then: Joi.required(),
+      }),
+      MONGO_PASSWORD: Joi.string().when('MONGO_AUTH_ENABLED', {
+        is: true,
+        then: Joi.required(),
+      }),
+      IMAGES_URL: Joi.string().default('http://localhost:3000/images/'),
       JWT_SECRET: Joi.string().required(),
       JWT_EXPIRES_IN: Joi.number(),
       EMAIL_ENABLED: Joi.boolean().default(false),
@@ -58,14 +58,9 @@ export class ConfigService {
       TEST_EMAIL_TO: Joi.string(),
     });
 
-    const { error, value: validatedEnvConfig } = Joi.validate(
-      envConfig,
-      envVarsSchema,
-    );
+    const { error, value: validatedEnvConfig } = Joi.validate(envConfig, envVarsSchema);
     if (error) {
-      throw new Error(
-        `Config validation error in your env file: ${error.message}`,
-      );
+      throw new Error(`Config validation error in your env file: ${error.message}`);
     }
     return validatedEnvConfig;
   }
@@ -83,6 +78,10 @@ export class ConfigService {
 
   get jwtSecret(): string {
     return this.envConfig.JWT_SECRET;
+  }
+
+  get imagesUrl(): string {
+    return this.envConfig.IMAGES_URL;
   }
 
   get emailService(): string | undefined {
@@ -105,7 +104,19 @@ export class ConfigService {
     return this.envConfig.TEST_EMAIL_TO;
   }
 
+  get mongoUser(): string | undefined {
+    return this.envConfig.MONGO_USER;
+  }
+
+  get mongoPassword(): string | undefined {
+    return this.envConfig.MONGO_PASSWORD;
+  }
+
   get emailEnabled(): boolean {
     return Boolean(this.envConfig.EMAIL_ENABLED).valueOf();
+  }
+
+  get mongoAuthEnabled(): boolean {
+    return Boolean(this.envConfig.MONGO_AUTH_ENABLED).valueOf();
   }
 }

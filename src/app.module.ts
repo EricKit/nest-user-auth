@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { join } from 'path';
@@ -11,12 +11,21 @@ import { ConfigService } from './config/config.service';
   imports: [
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.mongoUri,
-        useNewUrlParser: true,
-        useCreateIndex: true,
-        useFindAndModify: false,
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const options: MongooseModuleOptions = {
+          uri: configService.mongoUri,
+          useNewUrlParser: true,
+          useCreateIndex: true,
+          useFindAndModify: false,
+        };
+
+        if (configService.mongoAuthEnabled) {
+          options.user = configService.mongoUser;
+          options.pass = configService.mongoPassword;
+        }
+
+        return options;
+      },
       inject: [ConfigService],
     }),
     GraphQLModule.forRoot({
