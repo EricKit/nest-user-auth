@@ -68,9 +68,9 @@ It is challenging not to repeat the structure of the models in the GraphQL schem
 
 With NestJS 6.0.0 a **code first** approach was introduced. This project uses the **schema first** approach to be language agnostic. The starting point for models is the `*.types.graphql` files. They contain the GraphQL schema and have properties that every model, at a minimum, should have.
 
-`@nestjs/graphql` creates a `graphql.classes.ts` file to match the GraphQL schema when the program is started. These classes are used as the base class for the Mongoose Schema and in place of DTOs. Of note, the IMutation and IQuery classes created by `@nestjs/graphql` are not extended by the resolver class, though it would be nice if they were. It doesn't appear possible without modification of the `grahql.classes.ts` file because all the methods aren't implemented in the same resolver.
+`@nestjs/graphql` creates a `graphql.classes.ts` file to match the GraphQL schema when the program is started. These classes are used as the base class for the Mongoose Schema and in place of DTOs. Of note, the `IMutation` and `IQuery` classes created by `@nestjs/graphql` are not extended by the resolver class, though it would be nice if they were. It doesn't appear possible without modification of the `grahql.classes.ts` file because all the methods aren't implemented in the same resolver.
 
-Username is the primary field to identify a user in a request. Initially username or email were accepted, but for simplicity the schema moved to only username. Both username and email fields are in the JWT data, and because they are both unique, either could be used.
+`username` is the primary field to identify a user in a request. Initially `username` or `email` were accepted, but for simplicity the schema moved to only username. Both username and email fields are in the JWT data, and because they are both unique, either could be used.
 
 The database stores a unique lowercase value for both username and email. This is to lookup the user's username or email without case being a factor. Lowercase username and email are also unique, therefore user@Email.com and user@email.com can't both register. The normal cased version is used for everything except lookup. GraphQL Schemas are not aware lowercase values exist intentionally.
 
@@ -94,13 +94,13 @@ See `test/users.e2e-spec.ts` for expected results to mutations and queries.
 
 ## Environments
 
-Add a `test.env` file which contains a different MONGO_URI that `development.env`. See the testing section for details.
+Add a `test.env` file which contains a different `MONGO_URI` that `development.env`. See the testing section for details.
 
-Add any other environments for production and test. The environment variable `NODE_ENV` is used to determine the correct environment to work in. The program defaults to `development` if there is not a `NODE_ENV` environment variable set. For example, if the configuration is stored in `someEnv.env` file in production then set the `NODE_ENV` environment variable to `someEnv`. This can be done through package.json scripts, local environment variables, or your launch.json configuration in VS Code. If you do nothing, it will look for `development.env`. Do not commit this file.
+Add any other environments for production and test. The environment variable `NODE_ENV` is used to determine the correct environment to work in. The program defaults to `development` if there is not a `NODE_ENV` environment variable set. For example, if the configuration is stored in `someEnv.env` file in production then set the `NODE_ENV` environment variable to `someEnv`. This can be done through `package.json` scripts, local environment variables, or your `launch.json` configuration in VS Code. If you do nothing, it will look for `development.env`. Do not commit this file.
 
 ## Authentication
 
-Add the token to your headers `{"Authorization": "Bearer eyj2aGc..."}` to be authenticated via the JwtAuthGuard.
+Add the token to your headers `{"Authorization": "Bearer eyj2aGc..."}` to be authenticated via the `JwtAuthGuard`.
 
 If a user's account property `enabled` is set to false, their token will no longer authenticate. Many critiques of JWTs vs. session based authentication solutions are that a JWT cannot be invalidated once issued. While that is true, no request will authenticate with a valid JWT while the account associated with the token's `enabled` field is false. An admin or the user can set that field via an update.
 
@@ -108,7 +108,7 @@ Admin must be set manually as a string in permissions for the first user (add `a
 
 Users can modify or view their own data. Admins can do anything except refresh another user's token, which would allow the admin to impersonate that user.
 
-The `UsernameEmailGuard` compares the user's email or username with the same field in a query. If any query or mutation in the resolver has `doAnythingWithUser(username: string)` or `doAnythingWithUser(email: string)` and that email / username matches the user which is requesting the action, it will be approved. Username and email are unique, and the user has already been verified via JWT. **If there is not a username or email in the request, it will pass.** This is because the resolvers will set the action on the user making the request. For example, on updateUser if no username is specified, the modification is on the user making the request.
+The `UsernameEmailGuard` compares the user's email or username with the same field in a query. If any query or mutation in the resolver has `doAnythingWithUser(username: string)` or `doAnythingWithUser(email: string)` and that email / username matches the user which is requesting the action, it will be approved. Username and email are unique, and the user has already been verified via JWT. **If there is not a username or email in the request, it will pass.** This is because the resolvers will set the action on the user making the request. For example, on `updateUser` if no username is specified, the modification is on the user making the request.
 
 The `UsernameEmailAdminGuard` is the same as the `UsernameEmailGuard` except it also allows admins. Admins should not be allowed to change everything. For example, an admin should not be allowed to set another user's password. This would allow the admin to impersonate that user. The `@AdminAllowedArgs` decorator has been added for this reason to this guard. If this decorator is used, only the arguments specified are allowed. Placing the below decorator above the `updateUser` resolver will not allow an admin to specify the `fieldsToUpdate.password` argument.
 
