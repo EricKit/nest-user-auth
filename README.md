@@ -82,13 +82,13 @@ Add a user via the graphql playground or a frontend. See example mutations and q
 
 Update that user's Document to have the string `admin` in the permissions array. Only an admin can add another admin, so the first user must be done manually. MongoDB Compass is a great tool to modify fields. That user can now add the admin permission or remove the admin permission to or from other users.
 
-The UsersService `update` method will update any fields which are valid and not duplicates, even if other fields are invalid or duplicates.
+The `UsersService` `update` method will update any fields which are valid and not duplicates, even if other fields are invalid or duplicates.
 
 Users can change their `username`, `password`, `email`, or `enabled` status via a mutation. Changing their username will make their token unusable (it won't authenticate when the user presenting the token's username is checked against the token's username). This may or may not be the desired behavior. If using on a front end, make it obvious that you can change your username and it'll log the user out (front end must get a new token via logging in).
 
 If a user sets `enabled` to `false` on their account, they cannot log back in (because it is disabled), only an admin can change it back.
 
-Because both unique properties username and email can be changed, \_id should be used for many-to-many relationships.
+Because both unique properties `username` and `email` can be changed, `_id` should be used as keys for relationships.
 
 See `test/users.e2e-spec.ts` for expected results to mutations and queries.
 
@@ -106,7 +106,7 @@ If a user's account property `enabled` is set to false, their token will no long
 
 Admin must be set manually as a string in permissions for the first user (add `admin` to the permissions array). That person can then add admin to other users via a mutation. Permissions is an array of strings so that other permissions can be added to allow custom guards.
 
-Users can modify or view their own data. Admins can do anything except refresh another user's token, which would allow the admin to impersonate that user.
+Users can modify or view their own data. Admins can do anything except refresh another user's token or change their password, which would allow the admin to impersonate that user.
 
 The `UsernameEmailGuard` compares the user's email or username with the same field in a query. If any query or mutation in the resolver has `doAnythingWithUser(username: string)` or `doAnythingWithUser(email: string)` and that email / username matches the user which is requesting the action, it will be approved. Username and email are unique, and the user has already been verified via JWT. **If there is not a username or email in the request, it will pass.** This is because the resolvers will set the action on the user making the request. For example, on `updateUser` if no username is specified, the modification is on the user making the request.
 
@@ -138,7 +138,7 @@ The User's Document is accessable in the resolver via `@Context('req')` should i
 
 ## Relationships
 
-To add a relationship with the NestJS Schema first approach and Mongoose there are a few caveats. Take for example a one to many relationship where a Purchase can be made by one user, but a user can have many purchases. Likely, the Purchase GraphQL schema will look like this:
+To add a relationship with the NestJS Schema first approach and Mongoose there are a few caveats. Take for example a one-to-many relationship where a Purchase can be made by one user, but a user can have many purchases. Likely, the Purchase GraphQL schema will look like this:
 
 ```graphql
 type Purchase {
@@ -148,7 +148,7 @@ type Purchase {
 }
 ```
 
-This allows a user to make a query that contains both the purchase and its customer's subfields (see below for security concerns). The Schema first approach will create a file that contains the `Purchase` class with the `customer` property of type `User`. But in the MongoDB database a user is actually just a Mongo ID. It would be nice to have the `customer` property be a union of a `MongoId` and `User`. This would allow Mongoose's `populate` method to be used to replace the ID with an actual User. However, a property cannot be made more generic when extending a class. For the MongoDB Schema and Document, a different field for the foreign key must be created. For example:
+This allows a user to make a query that contains both the purchase and its customer's subfields (see below for security concerns). The Schema first approach will create a file that contains the `Purchase` class, as defined by the schema above, with the `customer` property of type `User`. For the MongoDB Schema and Document, a different field for the foreign key must be created. For example:
 
 ```typescript
 export interface PurchaseDocument extends Purchase, Document {
@@ -166,7 +166,7 @@ export const PurchaseDocument: Schema = new Schema(
   })
 ```
 
-The `customerId` property of the `PurchaseDocument` interface can reference the `ObjectId` and the `customer` property of the `Purchase` class can reference the `User` class. Purchase has only a `customer` property, while the `PurchaseDocument` has both the `customer` and `customerId` properties. This makes sense because a user should never care about how the relationship is built. Below is an example of how the customer's information, including ID, can be queried.
+The `customerId` property of the `PurchaseDocument` interface can reference the `ObjectId` and the `customer` property of the `Purchase` class can reference the `User` class. The `Purchase` class as defined by the schema only has a `customer` property, while the `PurchaseDocument` has both the `customer` and `customerId` properties. This makes sense because a user should never care about how the relationship is built. Below is an example of how the customer's information, including ID, can be queried.
 
 ```Typescript
 @ResolveProperty()
@@ -188,6 +188,8 @@ query purchase {
 ```
 
 Keep in mind, the above example would create a security issue as every field of a `User` would be accessable to anyone querying a Location. To fix this, add a new type to the GraphQL schema such as `SanitizedUser` which contains only public fields. Then, the `Purchase.customer` property would be changed from `User` to `SanitizedUser`.
+
+It would be nice to have the `customer` property be a union of a `MongoId` and `User`. This would allow Mongoose's `populate` method to be used to replace the `MongoId` with a `User`. However, a property cannot be made more generic when extending a class.
 
 ## Testing
 
