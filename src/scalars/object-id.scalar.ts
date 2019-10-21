@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 
 @Scalar('ObjectId')
 export class ObjectIdScalar {
-  description = 'Mongo ObjectId scalar type';
+  description = 'MongoDB ObjectId scalar type, sent as 24 byte Hex String';
 
   parseValue(value: string) {
     return new Types.ObjectId(value); // value from the client

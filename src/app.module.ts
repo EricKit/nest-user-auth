@@ -17,6 +17,7 @@ import { ConfigService } from './config/config.service';
           useNewUrlParser: true,
           useCreateIndex: true,
           useFindAndModify: false,
+          useUnifiedTopology: true,
         };
 
         if (configService.mongoAuthEnabled) {

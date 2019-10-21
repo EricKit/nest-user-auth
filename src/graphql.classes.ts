@@ -66,7 +66,7 @@ export class User {
     updatedAt: Date;
     lastSeenAt: Date;
     enabled: boolean;
-    _id: MongoObjectId;
+    _id: ObjectId;
 }
 
-export type MongoObjectId = any;
+export type ObjectId = any;
