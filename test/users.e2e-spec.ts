@@ -892,7 +892,7 @@ describe('Users (e2e)', () => {
         });
     });
 
-    it('fails with admin changing another user\'s password', async () => {
+    it("fails with admin changing another user's password", async () => {
       await usersService.create({
         username: 'userToUpdateByAdmin2',
         email: 'userToUpdatebyAdmin2@email.com',
