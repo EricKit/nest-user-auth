@@ -119,13 +119,17 @@ export class UsersService {
       }
     }
 
-    let user: UserDocument | null = null;
+    let user: UserDocument | undefined | null = null;
 
-    user = await this.userModel.findOneAndUpdate(
-      { lowercaseUsername: username.toLowerCase() },
-      fields,
-      { new: true, runValidators: true },
-    );
+    if (Object.entries(fieldsToUpdate).length > 0) {
+      user = await this.userModel.findOneAndUpdate(
+        { lowercaseUsername: username.toLowerCase() },
+        fields,
+        { new: true, runValidators: true },
+      );
+    } else {
+      user = await this.findOneByUsername(username);
+    }
 
     if (!user) return undefined;
 
@@ -181,7 +185,10 @@ export class UsersService {
           expiration,
         };
 
-        user.save().then(() => resolve(true), () => resolve(false));
+        user.save().then(
+          () => resolve(true),
+          () => resolve(false),
+        );
       });
     });
   }
