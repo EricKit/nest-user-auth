@@ -5,6 +5,7 @@
  */
 
 /* tslint:disable */
+/* eslint-disable */
 export class CreateUserInput {
     username: string;
     email: string;
