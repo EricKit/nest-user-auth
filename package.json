@@ -28,7 +28,7 @@
     "@nestjs/passport": "^7.0.0",
     "@nestjs/platform-express": "^7.0.2",
     "apollo-server-express": "^2.14.2",
-    "axios": ">=0.19.2",
+    "axios": ">=0.21.1",
     "bcrypt": "^4.0.1",
     "dotenv": "^8.2.0",
     "graphql": "^14.6.0",
