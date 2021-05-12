@@ -35,7 +35,7 @@
     "graphql-tools": "^4.0.6",
     "joi": "^14.3.1",
     "mongoose": "^5.9.5",
-    "nodemailer": "^6.4.5",
+    "nodemailer": "^6.4.16",
     "npm": "^6.14.6",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
