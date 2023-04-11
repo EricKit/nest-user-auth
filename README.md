@@ -94,7 +94,7 @@ See `test/users.e2e-spec.ts` for expected results to mutations and queries.
 
 ## Environments
 
-Add a `test.env` file which contains a different `MONGO_URI` that `development.env`. See the testing section for details.
+Add a `test.env` file which contains a different `MONGO_URI` than `development.env`. See the testing section for details.
 
 Add any other environments for production and test. The environment variable `NODE_ENV` is used to determine the correct environment to work in. The program defaults to `development` if there is not a `NODE_ENV` environment variable set. For example, if the configuration is stored in `someEnv.env` file in production then set the `NODE_ENV` environment variable to `someEnv`. This can be done through `package.json` scripts, local environment variables, or your `launch.json` configuration in VS Code. If you do nothing, it will look for `development.env`. Do not commit this file.
 
