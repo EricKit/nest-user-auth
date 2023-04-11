@@ -84,7 +84,7 @@ Update that user's Document to have the string `admin` in the permissions array.
 
 The `UsersService` `update` method will update any fields which are valid and not duplicates, even if other fields are invalid or duplicates.
 
-Users can change their `username`, `password`, `email`, or `enabled` status via a mutation. Changing their username will make their token unusable (it won't authenticate when the user presenting the token's username is checked against the token's username). This may or may not be the desired behavior. If using on a front end, make it obvious that you can change your username and it'll log the user out (front end must get a new token via logging in).
+Users can change their `username`, `password`, `email`, or `enabled` status via a mutation. Changing their username will make their token unusable (it won't authenticate when the user presenting the token's username is checked against the token's username). This may or may not be the desired behavior. If using on a front end, make it obvious that if the user changes their username, it'll log the user out (or the front end must get a new token via logging in behind the scenes).
 
 If a user sets `enabled` to `false` on their account, they cannot log back in (because it is disabled), only an admin can change it back.
 
